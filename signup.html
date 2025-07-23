@@ -14,7 +14,7 @@
     
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     
     <style>
         * {
@@ -416,40 +416,40 @@
                     </h2>
                     
                     <div class="plans-grid">
-                        <!-- Free Plan -->
-                        <div class="plan-card" data-plan="free" onclick="selectPlan('free')">
+                        <!-- Connect Plan -->
+                        <div class="plan-card" data-plan="connect" onclick="selectPlan('connect')">
                             <div class="plan-badge">Most Popular</div>
-                            <input type="radio" name="plan" value="free" class="radio-input" id="plan-free" checked>
+                            <input type="radio" name="plan" value="connect" class="radio-input" id="plan-connect" checked>
                             
                             <div class="plan-header">
-                                <div class="plan-name">Free Plan</div>
+                                <div class="plan-name">Connect Plan</div>
                                 <div class="plan-price">Free</div>
                             </div>
                             
                             <ul class="plan-features">
-                                <li>7 AI conversations</li>
-                                <li>1 activity search</li>
+                                <li>30 messages every 5 hours</li>
+                                <li>1 activity search per month</li>
                                 <li>Basic personality memory</li>
                                 <li>Community activity suggestions</li>
                                 <li>Privacy-first approach</li>
                             </ul>
                         </div>
 
-                        <!-- Plus Plan -->
-                        <div class="plan-card" data-plan="plus" onclick="selectPlan('plus')">
-                            <input type="radio" name="plan" value="plus" class="radio-input" id="plan-plus">
+                        <!-- Community Plan -->
+                        <div class="plan-card" data-plan="community" onclick="selectPlan('community')">
+                            <input type="radio" name="plan" value="community" class="radio-input" id="plan-community">
                             
                             <div class="plan-header">
-                                <div class="plan-name">Plus Plan</div>
+                                <div class="plan-name">Community Plan</div>
                                 <div class="plan-price">
-                                    $9.99
+                                    $12.99
                                     <span class="period">/month</span>
                                 </div>
                             </div>
                             
                             <ul class="plan-features">
-                                <li>50 AI conversations</li>
-                                <li>6 activity searches</li>
+                                <li>70 messages every 5 hours</li>
+                                <li>6 activity searches per month</li>
                                 <li>Advanced personality memory</li>
                                 <li>Priority activity suggestions</li>
                                 <li>Export conversation history</li>
@@ -457,13 +457,13 @@
                             </ul>
                         </div>
 
-                        <!-- Platinum Plan -->
-                        <div class="plan-card coming-soon" data-plan="platinum">
+                        <!-- Kinfolk Plan -->
+                        <div class="plan-card coming-soon" data-plan="kinfolk">
                             <div class="coming-soon-badge">Coming Soon</div>
-                            <input type="radio" name="plan" value="platinum" class="radio-input" id="plan-platinum" disabled>
+                            <input type="radio" name="plan" value="kinfolk" class="radio-input" id="plan-kinfolk" disabled>
                             
                             <div class="plan-header">
-                                <div class="plan-name">Platinum Plan</div>
+                                <div class="plan-name">Kinfolk Plan</div>
                                 <div class="plan-price">
                                     $19.99
                                     <span class="period">/month</span>
@@ -471,8 +471,8 @@
                             </div>
                             
                             <ul class="plan-features">
-                                <li>Unlimited AI conversations</li>
-                                <li>8 activity searches</li>
+                                <li>Unlimited messages</li>
+                                <li>8 activity searches per month</li>
                                 <li>3 human chat connections/month</li>
                                 <li>Advanced community matching</li>
                                 <li>Priority support</li>
@@ -484,7 +484,7 @@
                     <!-- Plan Summary -->
                     <div class="plan-summary" id="planSummary">
                         <div class="summary-text" id="summaryText">
-                            You've selected the <strong>Free Plan</strong> - Perfect for getting started with Kinly!
+                            You've selected the <strong>Connect Plan</strong> - Perfect for getting started with Kinly!
                         </div>
                     </div>
                 </div>
@@ -511,36 +511,38 @@
 
     <script>
         // App State
-        let selectedPlan = 'free';
+        let selectedPlan = 'connect';
         
         // Plan data
         const plans = {
-            free: {
-                name: 'Free Plan',
+            connect: {
+                name: 'Connect Plan',
                 price: 'Free',
-                conversations: 7,
-                searches: 1,
+                messagesPerWindow: 30,
+                windowHours: 5,
+                monthlySearches: 1,
                 description: 'Perfect for getting started with Kinly!'
             },
-            plus: {
-                name: 'Plus Plan',
-                price: '$9.99/month',
-                conversations: 50,
-                searches: 6,
+            community: {
+                name: 'Community Plan',
+                price: '$12.99/month',
+                messagesPerWindow: 70,
+                windowHours: 5,
+                monthlySearches: 6,
                 description: 'Great for regular users who want more conversations!'
             },
-            platinum: {
-                name: 'Platinum Plan',
+            kinfolk: {
+                name: 'Kinfolk Plan',
                 price: '$19.99/month',
-                conversations: 'Unlimited',
-                searches: 8,
+                messagesPerWindow: 'Unlimited',
+                monthlySearches: 8,
                 description: 'Coming soon with human chat connections!'
             }
         };
 
         // Plan selection
         function selectPlan(planType) {
-            if (planType === 'platinum') return; // Disabled for now
+            if (planType === 'kinfolk') return; // Disabled for now
             
             selectedPlan = planType;
             
@@ -561,9 +563,11 @@
             const summaryEl = document.getElementById('planSummary');
             const textEl = document.getElementById('summaryText');
             
+            const messagesText = plan.messagesPerWindow === 'Unlimited' ? 'Unlimited messages' : `${plan.messagesPerWindow} messages every 5 hours`;
+            
             textEl.innerHTML = `
                 You've selected the <strong>${plan.name}</strong> - ${plan.description}
-                <br><small>${plan.conversations} conversations, ${plan.searches} activity searches</small>
+                <br><small>${messagesText}, ${plan.monthlySearches} activity searches per month</small>
             `;
             
             summaryEl.classList.add('show');
@@ -590,15 +594,24 @@
             // Start loading
             setLoadingState(true);
             
-            // Create user data
+            // Create user data with new plan structure
             const userData = {
                 email: email,
                 name: name,
                 plan: selectedPlan,
-                planDetails: plans[selectedPlan],
-                createdAt: new Date().toISOString(),
-                conversationsUsed: 0,
-                searchesUsed: 0
+                planDetails: {
+                    messagesPerWindow: plans[selectedPlan].messagesPerWindow === 'Unlimited' ? 999999 : plans[selectedPlan].messagesPerWindow,
+                    windowHours: plans[selectedPlan].windowHours || 5,
+                    monthlySearches: plans[selectedPlan].monthlySearches
+                },
+                currentWindow: {
+                    messagesUsed: 0,
+                    windowStart: Date.now(),
+                    windowEnd: Date.now() + (5 * 60 * 60 * 1000) // 5 hours from now
+                },
+                monthlySearchesUsed: 0,
+                monthlyResetDate: getNextMonthlyReset(),
+                createdAt: new Date().toISOString()
             };
             
             // Store user data locally
@@ -614,7 +627,7 @@
             
             // Simulate processing time
             setTimeout(() => {
-                if (selectedPlan === 'free') {
+                if (selectedPlan === 'connect') {
                     // Redirect to app for free plan
                     window.location.href = 'app.html?welcome=true';
                 } else {
@@ -623,6 +636,12 @@
                 }
             }, 2000);
         });
+
+        function getNextMonthlyReset() {
+            const now = new Date();
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+            return nextMonth.getTime();
+        }
 
         function setLoadingState(loading) {
             const btn = document.getElementById('continueBtn');
@@ -648,7 +667,7 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Set default plan selection
-            selectPlan('free');
+            selectPlan('connect');
             
             // Focus on email field
             document.getElementById('email').focus();
