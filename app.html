@@ -683,11 +683,11 @@
                 <h3>Welcome, <span id="userName">Friend</span>!</h3>
                 
                 <div class="plan-info">
-                    <h4 id="planName">Free Plan</h4>
+                    <h4 id="planName">Connect Plan</h4>
                     <div class="usage-stats">
                         <div class="usage-item">
-                            <div class="usage-number" id="chatsRemaining">7</div>
-                            <div class="usage-label">Chats Remaining</div>
+                            <div class="usage-number" id="chatsRemaining">30</div>
+                            <div class="usage-label">Messages Remaining</div>
                         </div>
                         <div class="usage-item">
                             <div class="usage-number" id="searchesRemaining">1</div>
@@ -717,7 +717,7 @@
                 </div>
                 <div class="user-info">
                     <div class="usage-display" id="headerUsage">
-                        7 chats • 1 search remaining
+                        30 messages • 1 search remaining
                     </div>
                     <button class="btn btn-secondary" onclick="showAccountModal()" style="margin-left: 15px; padding: 8px 15px; font-size: 0.9rem;">
                         Account
@@ -735,7 +735,7 @@
                 <h3>🚀 You've Used All Your Chats!</h3>
                 <p>You've made the most of your plan! Ready to upgrade for more conversations?</p>
                 <button class="btn btn-upgrade" onclick="upgradeAccount()">
-                    Upgrade to Plus Plan
+                    Upgrade to Community Plan
                 </button>
                 <button class="btn btn-secondary" onclick="startNewChat()">
                     Start New Session
@@ -757,7 +757,7 @@
                 </div>
                 <div class="controls-right">
                     <div class="usage-display" id="footerUsage">
-                        7 chats • 1 search remaining
+                        30 messages • 1 search remaining
                     </div>
                 </div>
             </div>
@@ -801,13 +801,19 @@
                 return {
                     name: 'Friend',
                     email: null,
-                    plan: 'free',
+                    plan: 'connect',
                     planDetails: {
-                        conversations: 7,
-                        searches: 1
+                        messagesPerWindow: 30,
+                        windowHours: 5,
+                        monthlySearches: 1
                     },
-                    conversationsUsed: 0,
-                    searchesUsed: 0,
+                    currentWindow: {
+                        messagesUsed: 0,
+                        windowStart: Date.now(),
+                        windowEnd: Date.now() + (5 * 60 * 60 * 1000) // 5 hours from now
+                    },
+                    monthlySearchesUsed: 0,
+                    monthlyResetDate: this.getNextMonthlyReset(),
                     createdAt: new Date().toISOString()
                 };
             }
@@ -816,17 +822,59 @@
                 localStorage.setItem('kinly_user_data', JSON.stringify(this.userData));
             }
 
+            getNextMonthlyReset() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                return nextMonth.getTime();
+            }
+
+            checkAndResetWindow() {
+                const now = Date.now();
+                
+                // Check if current window has expired
+                if (now >= this.userData.currentWindow.windowEnd) {
+                    // Reset window
+                    this.userData.currentWindow = {
+                        messagesUsed: 0,
+                        windowStart: now,
+                        windowEnd: now + (this.userData.planDetails.windowHours * 60 * 60 * 1000)
+                    };
+                    this.saveUserData();
+                    return true; // Window was reset
+                }
+                
+                return false; // Window still active
+            }
+
+            checkAndResetMonthly() {
+                const now = Date.now();
+                
+                // Check if monthly period has expired
+                if (now >= this.userData.monthlyResetDate) {
+                    // Reset monthly counters
+                    this.userData.monthlySearchesUsed = 0;
+                    this.userData.monthlyResetDate = this.getNextMonthlyReset();
+                    this.saveUserData();
+                    return true; // Month was reset
+                }
+                
+                return false; // Month still active
+            }
+
             canSendMessage() {
-                return this.userData.conversationsUsed < this.userData.planDetails.conversations;
+                this.checkAndResetWindow();
+                return this.userData.currentWindow.messagesUsed < this.userData.planDetails.messagesPerWindow;
             }
 
             canUseActivitySearch() {
-                return this.userData.searchesUsed < this.userData.planDetails.searches;
+                this.checkAndResetMonthly();
+                return this.userData.monthlySearchesUsed < this.userData.planDetails.monthlySearches;
             }
 
-            useConversation() {
+            useMessage() {
+                this.checkAndResetWindow();
                 if (this.canSendMessage()) {
-                    this.userData.conversationsUsed++;
+                    this.userData.currentWindow.messagesUsed++;
                     this.saveUserData();
                     this.updateUI();
                     this.checkUsageWarnings();
@@ -836,8 +884,9 @@
             }
 
             useActivitySearch() {
+                this.checkAndResetMonthly();
                 if (this.canUseActivitySearch()) {
-                    this.userData.searchesUsed++;
+                    this.userData.monthlySearchesUsed++;
                     this.saveUserData();
                     this.updateUI();
                     return true;
@@ -845,42 +894,78 @@
                 return false;
             }
 
-            getRemainingChats() {
-                return Math.max(0, this.userData.planDetails.conversations - this.userData.conversationsUsed);
+            getRemainingMessages() {
+                this.checkAndResetWindow();
+                return Math.max(0, this.userData.planDetails.messagesPerWindow - this.userData.currentWindow.messagesUsed);
             }
 
             getRemainingSearches() {
-                return Math.max(0, this.userData.planDetails.searches - this.userData.searchesUsed);
+                this.checkAndResetMonthly();
+                return Math.max(0, this.userData.planDetails.monthlySearches - this.userData.monthlySearchesUsed);
+            }
+
+            getTimeUntilWindowReset() {
+                const now = Date.now();
+                const timeLeft = this.userData.currentWindow.windowEnd - now;
+                
+                if (timeLeft <= 0) {
+                    this.checkAndResetWindow();
+                    return this.userData.planDetails.windowHours * 60 * 60 * 1000; // Full window time
+                }
+                
+                return timeLeft;
+            }
+
+            formatTimeRemaining(milliseconds) {
+                const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+                const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+                
+                if (hours > 0) {
+                    return `${hours}h ${minutes}m`;
+                } else {
+                    return `${minutes}m`;
+                }
             }
 
             updateUI() {
-                const chatsRemaining = this.getRemainingChats();
+                const messagesRemaining = this.getRemainingMessages();
                 const searchesRemaining = this.getRemainingSearches();
+                const timeUntilReset = this.getTimeUntilWindowReset();
                 
-                // Update all usage displays
-                document.getElementById('chatsRemaining').textContent = chatsRemaining;
+                // Update usage displays
+                document.getElementById('chatsRemaining').textContent = messagesRemaining;
                 document.getElementById('searchesRemaining').textContent = searchesRemaining;
                 document.getElementById('userName').textContent = this.userData.name;
-                document.getElementById('planName').textContent = this.userData.plan === 'free' ? 'Free Plan' : 'Plus Plan';
                 
-                const usageText = `${chatsRemaining} chats • ${searchesRemaining} search${searchesRemaining !== 1 ? 'es' : ''} remaining`;
+                // Update plan name
+                const planNames = {
+                    'connect': 'Connect Plan',
+                    'community': 'Community Plan', 
+                    'kinfolk': 'Kinfolk Plan'
+                };
+                document.getElementById('planName').textContent = planNames[this.userData.plan] || 'Connect Plan';
+                
+                // Update usage text with time-based info
+                const usageText = `${messagesRemaining} messages • ${searchesRemaining} search${searchesRemaining !== 1 ? 'es' : ''} remaining`;
                 document.getElementById('headerUsage').textContent = usageText;
                 document.getElementById('footerUsage').textContent = usageText;
             }
 
             checkUsageWarnings() {
-                const chatsRemaining = this.getRemainingChats();
+                const messagesRemaining = this.getRemainingMessages();
                 const searchesRemaining = this.getRemainingSearches();
                 const warningEl = document.getElementById('usageWarning');
                 const warningText = document.getElementById('warningText');
+                const timeUntilReset = this.getTimeUntilWindowReset();
 
-                if (chatsRemaining <= 0) {
+                if (messagesRemaining <= 0) {
                     this.showUsageDepleted();
-                } else if (chatsRemaining <= 2) {
-                    warningText.textContent = `Only ${chatsRemaining} chat${chatsRemaining !== 1 ? 's' : ''} remaining. Consider upgrading to continue unlimited conversations.`;
+                } else if (messagesRemaining <= 5) {
+                    const timeText = this.formatTimeRemaining(timeUntilReset);
+                    warningText.textContent = `Only ${messagesRemaining} message${messagesRemaining !== 1 ? 's' : ''} remaining in this 5-hour window. Resets in ${timeText}.`;
                     warningEl.style.display = 'block';
-                } else if (searchesRemaining <= 0 && chatsRemaining > 0) {
-                    warningText.textContent = 'No activity searches remaining. Upgrade to Plus for 6 monthly searches.';
+                } else if (searchesRemaining <= 0 && messagesRemaining > 0) {
+                    warningText.textContent = 'No activity searches remaining this month. Upgrade to Community for 6 monthly searches.';
                     warningEl.style.display = 'block';
                 } else {
                     warningEl.style.display = 'none';
@@ -888,22 +973,37 @@
             }
 
             showUsageDepleted() {
+                const timeUntilReset = this.getTimeUntilWindowReset();
+                const timeText = this.formatTimeRemaining(timeUntilReset);
+                
                 document.getElementById('usageDepleted').style.display = 'block';
                 document.getElementById('messageInput').disabled = true;
                 document.getElementById('sendBtn').disabled = true;
+                
+                // Update depleted message with time info
+                const depletedTitle = document.querySelector('#usageDepleted h3');
+                const depletedText = document.querySelector('#usageDepleted p');
+                
+                depletedTitle.textContent = '⏰ 5-Hour Message Limit Reached!';
+                depletedText.textContent = `You've used all ${this.userData.planDetails.messagesPerWindow} messages in this window. Your limit resets in ${timeText}, or upgrade for higher limits.`;
             }
 
-            resetUsage() {
-                this.userData.conversationsUsed = 0;
-                this.userData.searchesUsed = 0;
-                this.saveUserData();
-                this.updateUI();
-                
-                // Re-enable chat
-                document.getElementById('usageDepleted').style.display = 'none';
-                document.getElementById('usageWarning').style.display = 'none';
-                document.getElementById('messageInput').disabled = false;
-                document.getElementById('sendBtn').disabled = false;
+            // Auto-refresh UI every minute to update time remaining
+            startAutoRefresh() {
+                setInterval(() => {
+                    this.updateUI();
+                    
+                    // Check if window has naturally reset
+                    if (this.checkAndResetWindow()) {
+                        // Window reset - re-enable chat if it was disabled
+                        document.getElementById('usageDepleted').style.display = 'none';
+                        document.getElementById('usageWarning').style.display = 'none';
+                        document.getElementById('messageInput').disabled = false;
+                        document.getElementById('sendBtn').disabled = false;
+                        
+                        showNotification('Your message limit has reset! You can continue chatting.', 'success');
+                    }
+                }, 60000); // Update every minute
             }
         }
 
@@ -1045,7 +1145,7 @@
             }
 
             // Use conversation credit
-            if (!usageManager.useConversation()) {
+            if (!usageManager.useMessage()) {
                 return;
             }
 
@@ -1108,8 +1208,8 @@
                 showNotification('Connection error. Please try again.', 'error');
                 
                 // Refund the conversation credit on error
-                if (usageManager.userData.conversationsUsed > 0) {
-                    usageManager.userData.conversationsUsed--;
+                if (usageManager.userData.currentWindow.messagesUsed > 0) {
+                    usageManager.userData.currentWindow.messagesUsed--;
                     usageManager.saveUserData();
                     usageManager.updateUI();
                 }
