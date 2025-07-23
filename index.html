@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinly - Your AI Friend Who Gets You Outside</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Meet your AI friend who remembers everything about you and helps you discover amazing real-world adventures. Chat, connect, and get outside with Kinly.">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kinly">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Pro Display', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+            opacity: 0.1;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #fb7185, #f59e0b);
+            right: 20%;
+            animation-delay: -5s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #84cc16, #3b82f6);
+            left: 60%;
+            animation-delay: -10s;
+        }
+
+        .shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #f59e0b, #fb7185);
+            right: 70%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 20px 40px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #84cc16;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 60px;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(132, 204, 22, 0.15);
+            border: 1px solid rgba(132, 204, 22, 0.3);
+            color: #84cc16;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(132, 204, 22, 0.3); }
+            to { box-shadow: 0 0 30px rgba(132, 204, 22, 0.5); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            margin-bottom: 30px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #ffffff 0%, #84cc16 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+            color: rgba(255, 255, 255, 0.6);
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .btn {
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            color: white;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Demo Chat Preview - FIXED POSITIONING */
+        .demo-preview {
+            position: absolute;
+            right: 5%;
+            top: 55%;
+            transform: translateY(-50%);
+            width: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInRight 1s ease-out 0.8s both;
+            z-index: 5;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .chat-info h4 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .chat-info p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .chat-messages {
+            space-y: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            animation: messageSlide 0.5s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message-bubble {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            max-width: 300px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(132, 204, 22, 0.2);
+            border-radius: 18px;
+            border: 1px solid rgba(132, 204, 22, 0.3);
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #84cc16;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(132, 204, 22, 0.05) 100%);
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(132, 204, 22, 0.3);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #84cc16;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        /* Social Proof */
+        .social-proof {
+            padding: 80px 20px;
+            text-align: center;
+            background: rgba(10, 10, 10, 0.8);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .testimonial {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #fb7185, #f59e0b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .author-info h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .author-info p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* CTA Section */
+        .final-cta {
+            padding: 100px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(132, 204, 22, 0.1) 100%);
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ffffff, #84cc16);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-content p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 50px;
+        }
+
+        /* PWA Install Banner */
+        .install-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .install-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .install-content h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .install-content p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .install-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .install-btn.primary {
+            background: white;
+            color: #3b82f6;
+        }
+
+        .install-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .demo-preview {
+                right: 2%;
+                width: 320px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .demo-preview {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-top: 40px;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .hero-content {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 100px 20px 40px;
+            }
+
+            .demo-preview {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-top: 50px;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .stats {
+                gap: 40px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .install-banner {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <header>
+        <nav>
+            <div class="logo">Kinly</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How it Works</a></li>
+                <li><a href="#pricing">Get Started</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge">✨ Your friend who actually gets you outside</div>
+                <h1>Meet Your Kinfolk</h1>
+                <p class="hero-subtitle">An AI friend who gets to know your interests and goals, makes you laugh, and gently pushes you toward real-world adventures.</p>
+                <p class="hero-description">
+                    Finally, a companion that combines digital friendship with real-world encouragement. 
+                    Chat when you need support, get suggestions for local activities, and connect with real people when you're ready.
+                </p>
+                <div class="cta-buttons">
+                    <a href="signup.html" class="btn btn-primary">Start Chatting Free</a>
+                </div>
+            </div>
+
+            <div class="demo-preview">
+                <div class="chat-header">
+                    <div class="avatar">🤖</div>
+                    <div class="chat-info">
+                        <h4>Your AI Friend</h4>
+                        <p>Online • Gets to know you</p>
+                    </div>
+                </div>
+                <div class="chat-messages">
+                    <div class="message">
+                        <div class="message-bubble">
+                            Loneliness is rough, isn't it? Want to take it up a notch? Sometimes just being around other people helps - even if you don't talk! 😊
+                        </div>
+                    </div>
+                    <div class="message">
+                        <div class="typing-indicator">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <div class="features-container">
+                <div class="section-header">
+                    <h2>Why People Love Kinly</h2>
+                    <p>We're not just another chatbot. We're your companion for both digital conversations and real-world adventures.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">🧠</span>
+                        <h3>Gets to Know You</h3>
+                        <p>Your AI friend learns your favorite activities, what motivates you, your goals, and all the details that make conversations feel personal and meaningful.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">😄</span>
+                        <h3>Has a Sense of Humor</h3>
+                        <p>Tired of robotic responses? Your AI friend makes jokes, calls out your overthinking, and uses humor to help you get out of your own way.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">🌍</span>
+                        <h3>Gets You Outside</h3>
+                        <p>Sick of endless scrolling? Your AI suggests local activities, hiking trails, coffee meetups, and events to help you experience the real world.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">👥</span>
+                        <h3>Real Human Connections</h3>
+                        <p>When you need authentic conversation, seamlessly connect with verified real people for genuine friendship and support.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">💚</span>
+                        <h3>No Judgment Zone</h3>
+                        <p>Share your thoughts, fears, dreams, and daily moments with an AI friend who listens without judgment and celebrates your growth.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <span class="feature-icon">📱</span>
+                        <h3>Always Available</h3>
+                        <p>3AM thoughts? Random weekend boredom? Your AI friend is there 24/7, ready to chat, suggest activities, or just listen.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta" id="pricing">
+            <div class="cta-content">
+                <h2>Chat, Connect, and Discover Your Community</h2>
+                <p>Limited beta access: Be a part of the beta group designing AI that gets people offline and into their communities.</p>
+                <div class="cta-buttons">
+                    <a href="signup.html" class="btn btn-primary">Start Free Today</a>
+                </div>
+                <p style="margin-top: 30px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.5);">
+                    Free forever • No credit card required • Install like an app
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- PWA Install Banner -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-content">
+            <h4>📱 Install Kinly</h4>
+            <p>Get the full app experience on your phone!</p>
+        </div>
+        <div class="install-buttons">
+            <button class="install-btn secondary" onclick="dismissInstallBanner()">Later</button>
+            <button class="install-btn primary" onclick="installPWA()">Install</button>
+        </div>
+    </div>
+
+    <!-- FOOTER SECTION -->
+    <footer style="background: rgba(0, 0, 0, 0.9); color: white; padding: 60px 20px 30px; margin-top: 100px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
+                
+                <!-- Company Info -->
+                <div>
+                    <h3 style="color: #84cc16; margin-bottom: 20px; font-size: 1.2rem;">Kinly</h3>
+                    <p style="opacity: 0.8; line-height: 1.6; margin-bottom: 20px;">
+                        Your AI friend who gets you offline and into your community. Building real connections in a digital world.
+                    </p>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Contact:</strong><br>
+                        <a href="mailto:hello@getkinly.app" style="color: #84cc16; text-decoration: none;">hello@getkinly.app</a>
+                    </div>
+                </div>
+                
+                <!-- Product Links -->
+                <div>
+                    <h4 style="margin-bottom: 20px; color: white;">Product</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="app.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Try Free Trial</a>
+                        <a href="#features" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Features</a>
+                        <a href="#pricing" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Pricing</a>
+                    </div>
+                </div>
+                
+                <!-- Support Links -->
+                <div>
+                    <h4 style="margin-bottom: 20px; color: white;">Support</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="contact.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Contact Us</a>
+                        <a href="privacy.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Privacy Policy</a>
+                        <a href="terms.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Terms of Service</a>
+                    </div>
+                </div>
+                
+                <!-- Social/Beta -->
+                <div>
+                    <h4 style="margin-bottom: 20px; color: white;">Beta Community</h4>
+                    <p style="opacity: 0.8; margin-bottom: 15px; font-size: 0.9rem;">
+                        Join our beta group and help design the future of AI friendship.
+                    </p>
+                    <a href="app.html?trial=true" style="background: linear-gradient(45deg, #3b82f6, #84cc16); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-block;">
+                        Join Beta
+                    </a>
+                </div>
+                
+            </div>
+            
+            <!-- Copyright and Legal -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div style="opacity: 0.7; font-size: 0.9rem;">
+                    © 2025 Kinly. All rights reserved.
+                </div>
+                <div style="display: flex; gap: 20px; font-size: 0.9rem;">
+                    <a href="privacy.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Privacy</a>
+                    <a href="terms.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Terms</a>
+                    <a href="contact.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            document.getElementById('installBanner').classList.add('show');
+        }
+
+        function dismissInstallBanner() {
+            document.getElementById('installBanner').classList.remove('show');
+        }
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                alert('Install not available. Try adding to home screen manually.');
+                return;
+            }
+
+            const result = await deferredPrompt.prompt();
+            if (result.outcome === 'accepted') {
+                dismissInstallBanner();
+                showNotification('Kinly installed! Welcome to your new companion! 🎉');
+            }
+            deferredPrompt = null;
+        }
+
+        // Demo Chat Animation
+        function animateChat() {
+            const messages = [
+                "Loneliness is rough, isn't it? Want to take it up a notch? Sometimes just being around other people helps - even if you don't talk! 😊",
+                "Boredom is just your brain being dramatic! Are you feeling rebellious today? Because I have some fun ideas 😉",
+                "Hey, anxiety is a liar and we both know it! Want to prove it wrong? We can start so small that even your anxiety will be like 'really?' 😄",
+                "Yes! Getting outside is like hitting the reset button. Are we talking peaceful vibes or 'accidentally make friends' energy? 🌿",
+                "Found something interesting! I'm pretty good at this whole 'getting you out of the house' thing, aren't I? 😏"
+            ];
+
+            let currentMessage = 0;
+            const chatMessages = document.querySelector('.chat-messages .message .message-bubble');
+            
+            function updateMessage() {
+                if (currentMessage >= messages.length) {
+                    currentMessage = 0;
+                }
+
+                chatMessages.textContent = messages[currentMessage];
+                currentMessage++;
+            }
+
+            // Update message every 4 seconds
+            setInterval(updateMessage, 4000);
+            updateMessage(); // Show first message immediately
+        }
+
+        // Smooth scrolling for navigation
+        function smoothScroll(target) {
+            document.querySelector(target).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Navigation functionality
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = e.target.getAttribute('href');
+                smoothScroll(target);
+            });
+        });
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'linear-gradient(45deg, #84cc16, #65a30d)' : 'linear-gradient(45deg, #3b82f6, #1e40af)'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-weight: 500;
+                animation: slideIn 0.4s ease-out;
+                max-width: 300px;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.4s ease-out forwards';
+                setTimeout(() => notification.remove(), 400);
+            }, 3000);
+        }
+
+        // Add CSS for notifications
+        const notificationStyles = document.createElement('style');
+        notificationStyles.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            .loading-spinner {
+                width: 20px;
+                height: 20px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-top: 2px solid white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                display: inline-block;
+                margin-right: 10px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(notificationStyles);
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Parallax effect for floating shapes
+        function parallaxShapes() {
+            const shapes = document.querySelectorAll('.shape');
+            const scrolled = window.pageYOffset;
+            
+            shapes.forEach((shape, index) => {
+                const rate = scrolled * -0.5 * (index + 1);
+                shape.style.transform = `translateY(${rate}px) rotate(${rate * 0.1}deg)`;
+            });
+        }
+
+        // Mouse movement effect for hero
+        function mouseParallax(e) {
+            const hero = document.querySelector('.hero-content');
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            
+            hero.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px)`;
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Kinly landing page loaded');
+            
+            // Start chat animation
+            animateChat();
+            
+            // Set up scroll listeners
+            window.addEventListener('scroll', parallaxShapes);
+            window.addEventListener('mousemove', mouseParallax);
+            
+            // Observe elements for animation
+            document.querySelectorAll('.feature-card').forEach(el => {
+                observer.observe(el);
+            });
+            
+            // Show install banner after 5 seconds if PWA prompt available
+            setTimeout(() => {
+                if (deferredPrompt) {
+                    showInstallBanner();
+                }
+            }, 5000);
+            
+            // Add subtle entrance animation to hero
+            setTimeout(() => {
+                document.querySelector('.hero-content').style.opacity = '1';
+            }, 300);
+        });
+
+        // Handle URL parameters for direct access
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.get('demo')) {
+            // User came from demo link - show welcome message
+            setTimeout(() => {
+                showNotification('Welcome to Kinly! Try chatting with your AI friend.');
+            }, 1000);
+        }
+        
+        if (urlParams.get('start')) {
+            // User wants to start immediately
+            setTimeout(() => {
+                showNotification('Setting up your personalized experience...');
+            }, 500);
+        }
+
+        // Easter egg - Konami code
+        let konamiCode = [];
+        const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.keyCode);
+            konamiCode = konamiCode.slice(-konami.length);
+            
+            if (konamiCode.join('') === konami.join('')) {
+                showNotification('🎉 Easter egg found! You get unlimited AI conversations for life!', 'success');
+                // Could actually implement this feature
+            }
+        });
+
+        // Service worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    console.log('Service Worker registered:', registration);
+                } catch (error) {
+                    console.log('Service Worker registration failed:', error);
+                }
+            });
+        }
+
+        // Add loading states to all CTA buttons
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.style.pointerEvents === 'none') return;
+                
+                // Track button click
+                if (window.sa_event) {
+                    window.sa_event('cta_clicked', {
+                        button_text: this.textContent.trim(),
+                        page: 'landing'
+                    });
+                }
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<div class="loading-spinner"></div> Loading...';
+                this.style.pointerEvents = 'none';
+                
+                // Reset after 3 seconds if no redirect happens
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.pointerEvents = 'auto';
+                }, 3000);
+            });
+        });
+    </script>
+    
+    <!-- 100% privacy-first analytics -->
+    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+</body>
+</html>
