@@ -184,8 +184,9 @@
             margin: var(--container-padding) auto;
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             min-height: min(80vh, 600px);
-            height: calc(100vh - 40px);
-            height: calc(100dvh - 40px);
+            height: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .chat-header {
@@ -252,12 +253,13 @@
         }
 
         .chat-messages {
-            height: calc(100% - 200px);
+            height: 450px;
             overflow-y: auto;
             padding: clamp(15px, 4vw, 20px);
             background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
+            flex: 1;
         }
 
         .message {
