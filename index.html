@@ -6,7 +6,7 @@
     <title>Kinly - Your AI Friend Who Gets You Outside</title>
     
     <!-- PWA Meta Tags -->
-    <meta name="description" content="Meet your AI friend who remembers everything about you and helps you discover amazing real-world adventures. Chat, connect, and get outside with Kinly.">
+    <meta name="description" content="Meet your AI friend who actually gets you outside. Chat, discover local activities, and connect with your community. Privacy-first AI friendship.">
     <meta name="theme-color" content="#3b82f6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -14,7 +14,7 @@
     
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     
     <style>
         * {
@@ -24,98 +24,88 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Pro Display', sans-serif;
-            background: #0a0a0a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #000000;
             color: white;
             overflow-x: hidden;
-            line-height: 1.6;
         }
 
-        /* Animated Background */
-        .bg-animation {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Animated Background Chat */
+        .chat-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            opacity: 0.8;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
         }
 
-        .floating-shapes {
+        .floating-message {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            background: rgba(59, 130, 246, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: float 15s infinite linear;
+            white-space: nowrap;
+            max-width: 300px;
         }
 
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            animation: float 20s infinite linear;
-            opacity: 0.1;
+        .floating-message.user {
+            background: rgba(132, 204, 22, 0.1);
+            border-color: rgba(132, 204, 22, 0.2);
+            color: rgba(132, 204, 22, 0.9);
         }
 
-        .shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(45deg, #3b82f6, #84cc16);
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .shape:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(45deg, #fb7185, #f59e0b);
-            right: 20%;
-            animation-delay: -5s;
-        }
-
-        .shape:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #84cc16, #3b82f6);
-            left: 60%;
-            animation-delay: -10s;
-        }
-
-        .shape:nth-child(4) {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(45deg, #f59e0b, #fb7185);
-            right: 70%;
-            animation-delay: -15s;
+        .floating-message.ai {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+            color: rgba(59, 130, 246, 0.9);
         }
 
         @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); }
-            100% { transform: translateY(-100px) rotate(360deg); }
+            0% {
+                transform: translateY(100vh) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px) rotate(5deg);
+                opacity: 0;
+            }
         }
 
         /* Header */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: 20px 40px;
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        nav {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 24px 0;
+            position: relative;
+            z-index: 20;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             background: linear-gradient(45deg, #3b82f6, #84cc16);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -124,8 +114,8 @@
 
         .nav-links {
             display: flex;
-            gap: 30px;
-            list-style: none;
+            gap: 32px;
+            align-items: center;
         }
 
         .nav-links a {
@@ -139,287 +129,313 @@
             color: #84cc16;
         }
 
-        /* Hero Section */
+        /* Interactive Hero Section */
         .hero {
-            min-height: 100vh;
+            min-height: 90vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: 120px 20px 60px;
             position: relative;
+            z-index: 10;
+            padding: 80px 0;
         }
 
         .hero-content {
             max-width: 800px;
-            z-index: 10;
+            margin: 0 auto;
         }
 
-        .hero-badge {
-            display: inline-block;
-            background: rgba(132, 204, 22, 0.15);
+        .hero-tagline {
+            background: rgba(132, 204, 22, 0.1);
             border: 1px solid rgba(132, 204, 22, 0.3);
             color: #84cc16;
             padding: 8px 20px;
             border-radius: 50px;
             font-size: 0.9rem;
-            margin-bottom: 30px;
-            animation: glow 2s ease-in-out infinite alternate;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 32px;
+            animation: pulse 3s infinite;
         }
 
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(132, 204, 22, 0.3); }
-            to { box-shadow: 0 0 30px rgba(132, 204, 22, 0.5); }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
         }
 
         .hero h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 800;
-            margin-bottom: 30px;
+            font-size: clamp(3rem, 8vw, 5rem);
             line-height: 1.1;
-            background: linear-gradient(135deg, #ffffff 0%, #84cc16 50%, #3b82f6 100%);
+            margin-bottom: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: fadeInUp 1s ease-out;
+            letter-spacing: -0.02em;
         }
 
-        .hero-subtitle {
+        .hero .subtitle {
             font-size: clamp(1.2rem, 4vw, 1.8rem);
-            margin-bottom: 40px;
-            color: rgba(255, 255, 255, 0.8);
-            animation: fadeInUp 1s ease-out 0.2s both;
-        }
-
-        .hero-description {
-            font-size: 1.1rem;
-            margin-bottom: 50px;
-            color: rgba(255, 255, 255, 0.6);
-            animation: fadeInUp 1s ease-out 0.4s both;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeInUp 1s ease-out 0.6s both;
-        }
-
-        .btn {
-            padding: 18px 36px;
-            border-radius: 50px;
-            font-size: 1.1rem;
+            line-height: 1.4;
+            margin-bottom: 16px;
+            color: #cbd5e1;
             font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border: none;
-            cursor: pointer;
         }
 
-        .btn-primary {
-            background: linear-gradient(45deg, #3b82f6, #84cc16);
-            color: white;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        .hero .description {
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            line-height: 1.6;
+            margin-bottom: 48px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-        }
-
-        /* Demo Chat Preview - FIXED POSITIONING */
-        .demo-preview {
-            position: absolute;
-            right: 5%;
-            top: 55%;
-            transform: translateY(-50%);
-            width: 350px;
+        /* Interactive Chat Preview */
+        .chat-preview {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: slideInRight 1s ease-out 0.8s both;
-            z-index: 5;
+            border-radius: 24px;
+            padding: 32px;
+            margin: 48px auto;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateY(-50%) translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(-50%) translateX(0);
-            }
+        .chat-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(132, 204, 22, 0.5), transparent);
         }
 
         .chat-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .avatar {
+        .chat-avatar {
             width: 40px;
             height: 40px;
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
             border-radius: 50%;
-            background: linear-gradient(45deg, #3b82f6, #84cc16);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 20px;
         }
 
         .chat-info h4 {
-            font-size: 1rem;
-            margin-bottom: 2px;
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
         }
 
-        .chat-info p {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .chat-messages {
-            space-y: 15px;
-        }
-
-        .message {
+        .chat-status {
+            color: #84cc16;
+            font-size: 0.9rem;
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            animation: messageSlide 0.5s ease-out;
+            align-items: center;
+            gap: 6px;
         }
 
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #84cc16;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .live-messages {
+            min-height: 200px;
+            position: relative;
+        }
+
+        .demo-message {
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.6s ease-out forwards;
+        }
+
+        .demo-message.user {
+            text-align: right;
+        }
+
+        .demo-message.ai {
+            text-align: left;
         }
 
         .message-bubble {
-            background: rgba(59, 130, 246, 0.2);
+            display: inline-block;
+            max-width: 80%;
             padding: 12px 16px;
             border-radius: 18px;
-            font-size: 0.9rem;
-            max-width: 300px;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message-bubble.user {
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message-bubble.ai {
+            background: rgba(132, 204, 22, 0.1);
+            border: 1px solid rgba(132, 204, 22, 0.2);
+            color: #84cc16;
+            border-bottom-left-radius: 6px;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .typing-indicator {
+            opacity: 0;
             display: flex;
             gap: 4px;
-            padding: 12px 16px;
-            background: rgba(132, 204, 22, 0.2);
-            border-radius: 18px;
-            border: 1px solid rgba(132, 204, 22, 0.3);
+            margin: 16px 0;
         }
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
+        .typing-indicator.show {
+            opacity: 1;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
             background: #84cc16;
-            animation: typing 1.4s infinite ease-in-out;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
         }
 
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes typing {
-            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
-            40% { opacity: 1; transform: scale(1); }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(1); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* CTA Buttons */
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 32px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #84cc16, #65a30d);
+            box-shadow: 0 10px 30px rgba(132, 204, 22, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 20px 40px rgba(132, 204, 22, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
         }
 
         /* Features Section */
         .features {
-            padding: 100px 20px;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(132, 204, 22, 0.05) 100%);
+            padding: 100px 0;
+            position: relative;
+            z-index: 10;
         }
 
-        .features-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-header {
+        .features h2 {
             text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .section-header h2 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 700;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .section-header p {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 40px;
+            margin-top: 60px;
         }
 
         .feature-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 40px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(132, 204, 22, 0.3);
         }
 
         .feature-card::before {
@@ -428,263 +444,113 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(45deg, #3b82f6, #84cc16);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #84cc16);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
 
         .feature-card:hover::before {
-            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
         .feature-icon {
             font-size: 3rem;
-            margin-bottom: 25px;
+            margin-bottom: 24px;
             display: block;
         }
 
         .feature-card h3 {
             font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #84cc16;
+            margin-bottom: 16px;
+            color: white;
         }
 
         .feature-card p {
-            color: rgba(255, 255, 255, 0.7);
+            color: #94a3b8;
             line-height: 1.6;
         }
 
-        /* Social Proof */
-        .social-proof {
-            padding: 80px 20px;
-            text-align: center;
-            background: rgba(10, 10, 10, 0.8);
+        /* Footer */
+        .footer {
+            padding: 60px 0 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 10;
         }
 
-        .stats {
+        .footer-content {
             display: flex;
-            justify-content: center;
-            gap: 60px;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 60px;
+            gap: 32px;
         }
 
-        .stat {
-            text-align: center;
+        .footer-links {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
         }
 
-        .stat-number {
-            font-size: 3rem;
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #84cc16;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
             font-weight: 800;
             background: linear-gradient(45deg, #3b82f6, #84cc16);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            display: block;
-            margin-bottom: 10px;
         }
 
-        .stat-label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1rem;
-        }
-
-        /* Testimonials */
-        .testimonials {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .testimonial {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .testimonial-text {
-            font-style: italic;
-            margin-bottom: 20px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #fb7185, #f59e0b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .author-info h4 {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .author-info p {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* CTA Section */
-        .final-cta {
-            padding: 100px 20px;
-            text-align: center;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(132, 204, 22, 0.1) 100%);
-        }
-
-        .cta-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .cta-content h2 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 700;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, #ffffff, #84cc16);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .cta-content p {
-            font-size: 1.3rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 50px;
-        }
-
-        /* PWA Install Banner */
-        .install-banner {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: linear-gradient(45deg, #3b82f6, #1e40af);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1000;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        .install-banner.show {
-            display: flex;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .install-content h4 {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .install-content p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .install-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .install-btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .install-btn.primary {
-            background: white;
-            color: #3b82f6;
-        }
-
-        .install-btn.secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1400px) {
-            .demo-preview {
-                right: 2%;
-                width: 320px;
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .demo-preview {
-                position: static;
-                transform: none;
-                width: 100%;
-                margin-top: 40px;
-                max-width: 400px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            
-            .hero-content {
-                max-width: 100%;
-            }
-        }
-
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            header {
-                padding: 15px 20px;
+            .container {
+                padding: 0 16px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px 0;
             }
 
             .nav-links {
-                display: none;
+                gap: 20px;
             }
 
             .hero {
-                padding: 100px 20px 40px;
+                padding: 60px 0;
+                min-height: 80vh;
             }
 
-            .demo-preview {
-                position: static;
-                transform: none;
-                width: 100%;
-                margin-top: 50px;
-                max-width: 400px;
-                margin-left: auto;
-                margin-right: auto;
+            .hero-tagline {
+                font-size: 0.8rem;
+                padding: 6px 16px;
+                margin-bottom: 24px;
             }
 
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
+            .chat-preview {
+                padding: 24px 20px;
+                margin: 32px auto;
             }
 
-            .stats {
-                gap: 40px;
+            .live-messages {
+                min-height: 150px;
             }
 
             .cta-buttons {
@@ -697,473 +563,284 @@
                 max-width: 300px;
             }
 
-            .install-banner {
-                left: 10px;
-                right: 10px;
-                bottom: 10px;
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .feature-card {
+                padding: 32px 24px;
+            }
+
+            .footer-content {
                 flex-direction: column;
                 text-align: center;
-                gap: 15px;
+            }
+
+            .floating-message {
+                font-size: 12px;
+                padding: 8px 12px;
+                max-width: 200px;
+            }
+        }
+
+        /* Reduce motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            .floating-message,
+            .hero-tagline,
+            .typing-dot {
+                animation: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="bg-animation">
-        <div class="floating-shapes">
-            <div class="shape"></div>
-            <div class="shape"></div>
-            <div class="shape"></div>
-            <div class="shape"></div>
-        </div>
-    </div>
+    <!-- Animated Background Chat -->
+    <div class="chat-background" id="chatBackground"></div>
 
-    <header>
-        <nav>
-            <div class="logo">Kinly</div>
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#how-it-works">How it Works</a></li>
-                <li><a href="#pricing">Get Started</a></li>
-            </ul>
-        </nav>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div class="logo">Kinly</div>
+                <nav class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="privacy.html">Privacy</a>
+                </nav>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <section class="hero">
+    <!-- Interactive Hero Section -->
+    <section class="hero">
+        <div class="container">
             <div class="hero-content">
-                <div class="hero-badge">✨ Your friend who actually gets you outside</div>
-                <h1>Meet Your Kinfolk</h1>
-                <p class="hero-subtitle">An AI friend who gets to know your interests and goals, makes you laugh, and gently pushes you toward real-world adventures.</p>
-                <p class="hero-description">
-                    Finally, a companion that combines digital friendship with real-world encouragement. 
-                    Chat when you need support, get suggestions for local activities, and connect with real people when you're ready.
-                </p>
+                <div class="hero-tagline">✨ Your friend who actually gets you outside</div>
+                
+                <h1>Meet Your<br>Kinfolk</h1>
+                <p class="subtitle">Your AI friend who gets you outside</p>
+                <p class="description">An AI friend who gets to know your interests and goals, makes you laugh, and gently pushes you toward real-world adventures.</p>
+
+                <!-- Interactive Chat Preview -->
+                <div class="chat-preview">
+                    <div class="chat-header">
+                        <div class="chat-avatar">🤖</div>
+                        <div class="chat-info">
+                            <h4>Kinly</h4>
+                            <div class="chat-status">
+                                <div class="status-dot"></div>
+                                Online • Gets to know you
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="live-messages" id="liveMessages">
+                        <!-- Messages will be populated by JavaScript -->
+                    </div>
+
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+
                 <div class="cta-buttons">
                     <a href="signup.html" class="btn btn-primary">Start Chatting Free</a>
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2>Finally, a companion that combines digital friendship with real-world encouragement</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🤖</span>
+                    <h3>Personal AI Friend</h3>
+                    <p>Chat when you need support, get suggestions for local activities, and connect with real people when you're ready.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🌟</span>
+                    <h3>Gets to Know You</h3>
+                    <p>Remembers your interests, learns your goals, and suggests activities that actually match your personality.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🏃‍♀️</span>
+                    <h3>Encourages Real Adventures</h3>
+                    <p>Encourages you to try local activities, get out and explore your community, and meet new people who share your interests.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔒</span>
+                    <h3>Privacy First</h3>
+                    <p>Your conversations stay on your device. We never sell your data or compromise your privacy.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3>Local Activity Search</h3>
+                    <p>Find coffee shops, hiking trails, art classes, and events in your neighborhood that match your interests.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">💬</span>
+                    <h3>Community Connection</h3>
+                    <p>Connect with real people in your area who share your interests and want to explore together.</p>
                 </div>
             </div>
 
-            <div class="demo-preview">
-                <div class="chat-header">
-                    <div class="avatar">🤖</div>
-                    <div class="chat-info">
-                        <h4>Your AI Friend</h4>
-                        <p>Online • Gets to know you</p>
-                    </div>
-                </div>
-                <div class="chat-messages">
-                    <div class="message">
-                        <div class="message-bubble">
-                            Loneliness is rough, isn't it? Want to take it up a notch? Sometimes just being around other people helps - even if you don't talk! 😊
-                        </div>
-                    </div>
-                    <div class="message">
-                        <div class="typing-indicator">
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="features" id="features">
-            <div class="features-container">
-                <div class="section-header">
-                    <h2>Why People Love Kinly</h2>
-                    <p>We're not just another chatbot. We're your companion for both digital conversations and real-world adventures.</p>
-                </div>
-
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <span class="feature-icon">🧠</span>
-                        <h3>Gets to Know You</h3>
-                        <p>Your AI friend learns your favorite activities, what motivates you, your goals, and all the details that make conversations feel personal and meaningful.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">😄</span>
-                        <h3>Has a Sense of Humor</h3>
-                        <p>Tired of robotic responses? Your AI friend makes jokes, calls out your overthinking, and uses humor to help you get out of your own way.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">🌍</span>
-                        <h3>Gets You Outside</h3>
-                        <p>Sick of endless scrolling? Your AI suggests local activities, hiking trails, coffee meetups, and events to help you experience the real world.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">👥</span>
-                        <h3>Real Human Connections</h3>
-                        <p>When you need authentic conversation, seamlessly connect with verified real people for genuine friendship and support.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">💚</span>
-                        <h3>No Judgment Zone</h3>
-                        <p>Share your thoughts, fears, dreams, and daily moments with an AI friend who listens without judgment and celebrates your growth.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <span class="feature-icon">📱</span>
-                        <h3>Always Available</h3>
-                        <p>3AM thoughts? Random weekend boredom? Your AI friend is there 24/7, ready to chat, suggest activities, or just listen.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="final-cta" id="pricing">
-            <div class="cta-content">
-                <h2>Chat, Connect, and Discover Your Community</h2>
-                <p>Limited beta access: Be a part of the beta group designing AI that gets people offline and into their communities.</p>
+            <div style="text-align: center; margin-top: 80px;">
                 <div class="cta-buttons">
                     <a href="signup.html" class="btn btn-primary">Start Free Today</a>
                 </div>
-                <p style="margin-top: 30px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.5);">
-                    Free forever • No credit card required • Install like an app
-                </p>
             </div>
-        </section>
-    </main>
-
-    <!-- PWA Install Banner -->
-    <div class="install-banner" id="installBanner">
-        <div class="install-content">
-            <h4>📱 Install Kinly</h4>
-            <p>Get the full app experience on your phone!</p>
         </div>
-        <div class="install-buttons">
-            <button class="install-btn secondary" onclick="dismissInstallBanner()">Later</button>
-            <button class="install-btn primary" onclick="installPWA()">Install</button>
-        </div>
-    </div>
+    </section>
 
-    <!-- FOOTER SECTION -->
-    <footer style="background: rgba(0, 0, 0, 0.9); color: white; padding: 60px 20px 30px; margin-top: 100px;">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
-                
-                <!-- Company Info -->
-                <div>
-                    <h3 style="color: #84cc16; margin-bottom: 20px; font-size: 1.2rem;">Kinly</h3>
-                    <p style="opacity: 0.8; line-height: 1.6; margin-bottom: 20px;">
-                        Your AI friend who gets you offline and into your community. Building real connections in a digital world.
-                    </p>
-                    <div style="margin-bottom: 15px;">
-                        <strong>Contact:</strong><br>
-                        <a href="mailto:hello@getkinly.app" style="color: #84cc16; text-decoration: none;">hello@getkinly.app</a>
-                    </div>
-                </div>
-                
-                <!-- Product Links -->
-                <div>
-                    <h4 style="margin-bottom: 20px; color: white;">Product</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <a href="app.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Try Free Trial</a>
-                        <a href="#features" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Features</a>
-                        <a href="#pricing" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Pricing</a>
-                    </div>
-                </div>
-                
-                <!-- Support Links -->
-                <div>
-                    <h4 style="margin-bottom: 20px; color: white;">Support</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <a href="contact.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Contact Us</a>
-                        <a href="privacy.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Privacy Policy</a>
-                        <a href="terms.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Terms of Service</a>
-                    </div>
-                </div>
-                
-                <!-- Social/Beta -->
-                <div>
-                    <h4 style="margin-bottom: 20px; color: white;">Beta Community</h4>
-                    <p style="opacity: 0.8; margin-bottom: 15px; font-size: 0.9rem;">
-                        Join our beta group and help design the future of AI friendship.
-                    </p>
-                    <a href="app.html?trial=true" style="background: linear-gradient(45deg, #3b82f6, #84cc16); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-block;">
-                        Join Beta
-                    </a>
-                </div>
-                
-            </div>
-            
-            <!-- Copyright and Legal -->
-            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                <div style="opacity: 0.7; font-size: 0.9rem;">
-                    © 2025 Kinly. All rights reserved.
-                </div>
-                <div style="display: flex; gap: 20px; font-size: 0.9rem;">
-                    <a href="privacy.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Privacy</a>
-                    <a href="terms.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Terms</a>
-                    <a href="contact.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Contact</a>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Kinly</div>
+                <div class="footer-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="contact.html">Contact</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // PWA Installation
-        let deferredPrompt;
+        // Interactive Chat Demo
+        const messages = [
+            { type: 'ai', text: "Hey! How's your day going?" },
+            { type: 'user', text: "Good! Just feeling a bit stuck inside today 😅" },
+            { type: 'ai', text: "I totally get that! Want to brainstorm some fun ways to get outside?" },
+            { type: 'user', text: "Yes! Maybe something creative?" },
+            { type: 'ai', text: "Perfect! There's an outdoor sketching group meeting at the park this Saturday. Plus there's a pottery class with garden views nearby! 🎨" },
+            { type: 'user', text: "The sketching group sounds amazing! How do I join?" },
+            { type: 'ai', text: "I'll send you the details! They meet every Saturday at 2pm. It's beginner-friendly and they provide supplies. Ready to get creative outside? 🌞" }
+        ];
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            showInstallBanner();
-        });
+        let currentMessageIndex = 0;
+        const messagesContainer = document.getElementById('liveMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
 
-        function showInstallBanner() {
-            document.getElementById('installBanner').classList.add('show');
-        }
-
-        function dismissInstallBanner() {
-            document.getElementById('installBanner').classList.remove('show');
-        }
-
-        async function installPWA() {
-            if (!deferredPrompt) {
-                alert('Install not available. Try adding to home screen manually.');
-                return;
-            }
-
-            const result = await deferredPrompt.prompt();
-            if (result.outcome === 'accepted') {
-                dismissInstallBanner();
-                showNotification('Kinly installed! Welcome to your new companion! 🎉');
-            }
-            deferredPrompt = null;
-        }
-
-        // Demo Chat Animation
-        function animateChat() {
-            const messages = [
-                "Loneliness is rough, isn't it? Want to take it up a notch? Sometimes just being around other people helps - even if you don't talk! 😊",
-                "Boredom is just your brain being dramatic! Are you feeling rebellious today? Because I have some fun ideas 😉",
-                "Hey, anxiety is a liar and we both know it! Want to prove it wrong? We can start so small that even your anxiety will be like 'really?' 😄",
-                "Yes! Getting outside is like hitting the reset button. Are we talking peaceful vibes or 'accidentally make friends' energy? 🌿",
-                "Found something interesting! I'm pretty good at this whole 'getting you out of the house' thing, aren't I? 😏"
-            ];
-
-            let currentMessage = 0;
-            const chatMessages = document.querySelector('.chat-messages .message .message-bubble');
+        function addMessage(message, index) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `demo-message ${message.type}`;
+            messageDiv.style.animationDelay = `${index * 0.1}s`;
             
-            function updateMessage() {
-                if (currentMessage >= messages.length) {
-                    currentMessage = 0;
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${message.type}`;
+            bubble.textContent = message.text;
+            
+            messageDiv.appendChild(bubble);
+            messagesContainer.appendChild(messageDiv);
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.classList.add('show');
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.classList.remove('show');
+        }
+
+        function playMessageSequence() {
+            messagesContainer.innerHTML = '';
+            currentMessageIndex = 0;
+            
+            function showNextMessage() {
+                if (currentMessageIndex < messages.length) {
+                    hideTypingIndicator();
+                    addMessage(messages[currentMessageIndex], currentMessageIndex);
+                    currentMessageIndex++;
+                    
+                    if (currentMessageIndex < messages.length) {
+                        setTimeout(() => {
+                            showTypingIndicator();
+                            setTimeout(showNextMessage, 1500);
+                        }, 2000);
+                    } else {
+                        // Restart after delay
+                        setTimeout(() => {
+                            playMessageSequence();
+                        }, 5000);
+                    }
                 }
-
-                chatMessages.textContent = messages[currentMessage];
-                currentMessage++;
             }
-
-            // Update message every 4 seconds
-            setInterval(updateMessage, 4000);
-            updateMessage(); // Show first message immediately
+            
+            showTypingIndicator();
+            setTimeout(showNextMessage, 1000);
         }
 
-        // Smooth scrolling for navigation
-        function smoothScroll(target) {
-            document.querySelector(target).scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
+        // Floating Background Messages
+        const backgroundMessages = [
+            "Looking for hiking trails near me",
+            "Any good coffee shops around here?",
+            "I love the pottery class suggestion! 🎨",
+            "Want to try rock climbing this weekend",
+            "Found an amazing art gallery today",
+            "Just joined a book club meeting!",
+            "Perfect weather for a picnic 🌞",
+            "Discovered a new farmers market",
+            "Ready for some outdoor yoga",
+            "Weekend adventure planning time!"
+        ];
 
-        // Navigation functionality
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = e.target.getAttribute('href');
-                smoothScroll(target);
-            });
-        });
-
-        // Notification system
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? 'linear-gradient(45deg, #84cc16, #65a30d)' : 'linear-gradient(45deg, #3b82f6, #1e40af)'};
-                color: white;
-                padding: 15px 25px;
-                border-radius: 12px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-                z-index: 10000;
-                font-weight: 500;
-                animation: slideIn 0.4s ease-out;
-                max-width: 300px;
-            `;
+        function createFloatingMessage() {
+            const message = document.createElement('div');
+            message.className = Math.random() > 0.5 ? 'floating-message user' : 'floating-message ai';
+            message.textContent = backgroundMessages[Math.floor(Math.random() * backgroundMessages.length)];
             
-            notification.textContent = message;
-            document.body.appendChild(notification);
+            // Random positioning
+            message.style.left = Math.random() * 100 + '%';
+            message.style.animationDuration = (12 + Math.random() * 8) + 's';
+            message.style.animationDelay = Math.random() * 2 + 's';
             
+            document.getElementById('chatBackground').appendChild(message);
+            
+            // Remove after animation
             setTimeout(() => {
-                notification.style.animation = 'slideOut 0.4s ease-out forwards';
-                setTimeout(() => notification.remove(), 400);
-            }, 3000);
+                message.remove();
+            }, 20000);
         }
 
-        // Add CSS for notifications
-        const notificationStyles = document.createElement('style');
-        notificationStyles.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-            .loading-spinner {
-                width: 20px;
-                height: 20px;
-                border: 2px solid rgba(255,255,255,0.3);
-                border-top: 2px solid white;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                display: inline-block;
-                margin-right: 10px;
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(notificationStyles);
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
-                }
-            });
-        }, observerOptions);
-
-        // Parallax effect for floating shapes
-        function parallaxShapes() {
-            const shapes = document.querySelectorAll('.shape');
-            const scrolled = window.pageYOffset;
-            
-            shapes.forEach((shape, index) => {
-                const rate = scrolled * -0.5 * (index + 1);
-                shape.style.transform = `translateY(${rate}px) rotate(${rate * 0.1}deg)`;
-            });
-        }
-
-        // Mouse movement effect for hero
-        function mouseParallax(e) {
-            const hero = document.querySelector('.hero-content');
-            const x = (e.clientX / window.innerWidth) * 100;
-            const y = (e.clientY / window.innerHeight) * 100;
-            
-            hero.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px)`;
-        }
-
-        // Initialize everything when page loads
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Kinly landing page loaded');
+            // Start chat demo
+            setTimeout(playMessageSequence, 1000);
             
-            // Start chat animation
-            animateChat();
+            // Create floating messages
+            setInterval(createFloatingMessage, 3000);
             
-            // Set up scroll listeners
-            window.addEventListener('scroll', parallaxShapes);
-            window.addEventListener('mousemove', mouseParallax);
-            
-            // Observe elements for animation
-            document.querySelectorAll('.feature-card').forEach(el => {
-                observer.observe(el);
-            });
-            
-            // Show install banner after 5 seconds if PWA prompt available
-            setTimeout(() => {
-                if (deferredPrompt) {
-                    showInstallBanner();
-                }
-            }, 5000);
-            
-            // Add subtle entrance animation to hero
-            setTimeout(() => {
-                document.querySelector('.hero-content').style.opacity = '1';
-            }, 300);
-        });
-
-        // Handle URL parameters for direct access
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        if (urlParams.get('demo')) {
-            // User came from demo link - show welcome message
-            setTimeout(() => {
-                showNotification('Welcome to Kinly! Try chatting with your AI friend.');
-            }, 1000);
-        }
-        
-        if (urlParams.get('start')) {
-            // User wants to start immediately
-            setTimeout(() => {
-                showNotification('Setting up your personalized experience...');
-            }, 500);
-        }
-
-        // Easter egg - Konami code
-        let konamiCode = [];
-        const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
-        
-        document.addEventListener('keydown', (e) => {
-            konamiCode.push(e.keyCode);
-            konamiCode = konamiCode.slice(-konami.length);
-            
-            if (konamiCode.join('') === konami.join('')) {
-                showNotification('🎉 Easter egg found! You get unlimited AI conversations for life!', 'success');
-                // Could actually implement this feature
+            // Create initial floating messages
+            for (let i = 0; i < 5; i++) {
+                setTimeout(createFloatingMessage, i * 1000);
             }
         });
 
-        // Service worker registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                try {
-                    const registration = await navigator.serviceWorker.register('sw.js');
-                    console.log('Service Worker registered:', registration);
-                } catch (error) {
-                    console.log('Service Worker registration failed:', error);
-                }
-            });
-        }
-
-        // Add loading states to all CTA buttons
-        document.querySelectorAll('.btn-primary').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                if (this.style.pointerEvents === 'none') return;
-                
-                // Track button click
-                if (window.sa_event) {
-                    window.sa_event('cta_clicked', {
-                        button_text: this.textContent.trim(),
-                        page: 'landing'
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 }
-                
-                const originalText = this.innerHTML;
-                this.innerHTML = '<div class="loading-spinner"></div> Loading...';
-                this.style.pointerEvents = 'none';
-                
-                // Reset after 3 seconds if no redirect happens
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.style.pointerEvents = 'auto';
-                }, 3000);
             });
         });
     </script>
