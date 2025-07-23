@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Kinly</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Get in touch with the Kinly team for support, feedback, partnerships, or bug reports. We're here to help!">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kinly">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #84cc16 0%, #3b82f6 50%, #64748b 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .contact-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        .contact-method:last-child {
+            margin-bottom: 0;
+        }
+        .icon {
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .contact-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+        .contact-info p {
+            margin: 0;
+            opacity: 0.8;
+        }
+        .contact-info a {
+            color: #84cc16;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .beta-note {
+            background: rgba(132, 204, 22, 0.2);
+            border: 1px solid rgba(132, 204, 22, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .beta-note h3 {
+            color: #84cc16;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .contact-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Contact Us</h1>
+            <p>We'd love to hear from you! Get in touch with questions, feedback, or just to say hi.</p>
+        </div>
+        
+        <div class="beta-note">
+            <h3>🚀 Beta Community</h3>
+            <p>Kinly is currently in beta. Your feedback helps shape the future of AI-powered community connection!</p>
+        </div>
+        
+        <div class="contact-card">
+            <div class="contact-method">
+                <div class="icon">📧</div>
+                <div class="contact-info">
+                    <h3>General Support</h3>
+                    <p>Get help with your account, billing, or general questions</p>
+                    <a href="mailto:hello@getkinly.app">hello@getkinly.app</a>
+                </div>
+            </div>
+            
+            <div class="contact-method">
+                <div class="icon">💬</div>
+                <div class="contact-info">
+                    <h3>Beta Feedback</h3>
+                    <p>Share your thoughts on features, bugs, or ideas for improvement</p>
+                    <a href="mailto:hello@getkinly.app?subject=Beta Feedback">hello@getkinly.app</a>
+                </div>
+            </div>
+            
+            <div class="contact-method">
+                <div class="icon">🤝</div>
+                <div class="contact-info">
+                    <h3>Business Partnerships</h3>
+                    <p>Interested in partnering with Kinly? Let's connect your business with our community</p>
+                    <a href="mailto:hello@getkinly.app?subject=Partnership Inquiry">hello@getkinly.app</a>
+                </div>
+            </div>
+            
+            <div class="contact-method">
+                <div class="icon">🐛</div>
+                <div class="contact-info">
+                    <h3>Report a Bug</h3>
+                    <p>Found something that's not working? Help us make Kinly better</p>
+                    <a href="mailto:hello@getkinly.app?subject=Bug Report">hello@getkinly.app</a>
+                </div>
+            </div>
+
+            <div class="contact-method">
+                <div class="icon">💡</div>
+                <div class="contact-info">
+                    <h3>Feature Requests</h3>
+                    <p>Have an idea for a new feature? We'd love to hear it!</p>
+                    <a href="mailto:hello@getkinly.app?subject=Feature Request">hello@getkinly.app</a>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </div>
+    </div>
+    
+    <!-- 100% privacy-first analytics -->
+    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+</body>
+</html>
