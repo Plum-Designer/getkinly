@@ -93,14 +93,18 @@
             }
         }
 
-        /* Header */
+        /* Updated Header */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 24px 0;
             position: relative;
             z-index: 20;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
         }
 
         .logo {
@@ -112,21 +116,22 @@
             background-clip: text;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 32px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
+        .login-btn {
+            background: transparent;
+            border: 2px solid #84cc16;
             color: #84cc16;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            background: #84cc16;
+            color: white;
         }
 
         /* Interactive Hero Section */
@@ -476,61 +481,25 @@
             line-height: 1.6;
         }
 
-        /* Footer */
-        .footer {
-            padding: 60px 0 40px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            z-index: 10;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 32px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 32px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: #84cc16;
-        }
-
-        .footer-logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(45deg, #3b82f6, #84cc16);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
                 padding: 0 16px;
             }
 
-            .header {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px 0;
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
             }
 
-            .nav-links {
-                gap: 20px;
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .login-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
             }
 
             .hero {
@@ -572,15 +541,15 @@
                 padding: 32px 24px;
             }
 
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
             .floating-message {
                 font-size: 12px;
                 padding: 8px 12px;
                 max-width: 200px;
+            }
+
+            .login-btn, .start-chatting-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
             }
         }
 
@@ -598,16 +567,12 @@
     <!-- Animated Background Chat -->
     <div class="chat-background" id="chatBackground"></div>
 
-    <!-- Header -->
+    <!-- Updated Header -->
     <header class="header">
         <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="header-content">
                 <div class="logo">Kinly</div>
-                <nav class="nav-links">
-                    <a href="#features">Features</a>
-                    <a href="contact.html">Contact</a>
-                    <a href="privacy.html">Privacy</a>
-                </nav>
+                <a href="login.html" class="login-btn">Login</a>
             </div>
         </div>
     </header>
@@ -647,7 +612,7 @@
                 </div>
 
                 <div class="cta-buttons">
-                    <a href="signup.html" class="btn btn-primary">Start Chatting Free</a>
+                    <a href="app.html" class="btn btn-primary">Start Chatting Free</a>
                     <a href="#features" class="btn btn-secondary">Learn More</a>
                 </div>
             </div>
@@ -657,63 +622,112 @@
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="container">
-            <h2>Finally, a companion that combines digital friendship with real-world encouragement</h2>
+            <h2>Why People Love Kinly</h2>
             
             <div class="features-grid">
                 <div class="feature-card">
                     <span class="feature-icon">🤖</span>
-                    <h3>Personal AI Friend</h3>
-                    <p>Chat when you need support, get suggestions for local activities, and connect with real people when you're ready.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <span class="feature-icon">🌟</span>
                     <h3>Gets to Know You</h3>
-                    <p>Remembers your interests, learns your goals, and suggests activities that actually match your personality.</p>
+                    <p>Your AI friend learns your favorite activities, what motivates you, your goals, and all the details that make conversations feel personal and meaningful.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <span class="feature-icon">🏃‍♀️</span>
-                    <h3>Encourages Real Adventures</h3>
-                    <p>Encourages you to try local activities, get out and explore your community, and meet new people who share your interests.</p>
+                    <span class="feature-icon">😄</span>
+                    <h3>Has a Sense of Humor</h3>
+                    <p>Tired of robotic responses? Your AI friend makes jokes, calls out your overthinking, and uses humor to help you get out of your own way.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <span class="feature-icon">🔒</span>
-                    <h3>Privacy First</h3>
-                    <p>Your conversations stay on your device. We never sell your data or compromise your privacy.</p>
+                    <span class="feature-icon">🌍</span>
+                    <h3>Gets You Outside</h3>
+                    <p>Sick of endless scrolling? Your AI suggests local activities, hiking trails, coffee meetups, and events to help you experience the real world.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <span class="feature-icon">🎯</span>
-                    <h3>Local Activity Search</h3>
-                    <p>Find coffee shops, hiking trails, art classes, and events in your neighborhood that match your interests.</p>
+                    <span class="feature-icon">🤝</span>
+                    <h3>Real Human Connections</h3>
+                    <p>When you need authentic conversation, seamlessly connect with verified real people for genuine friendship and support.</p>
                 </div>
                 
                 <div class="feature-card">
-                    <span class="feature-icon">💬</span>
-                    <h3>Community Connection</h3>
-                    <p>Connect with real people in your area who share your interests and want to explore together.</p>
+                    <span class="feature-icon">🚫</span>
+                    <h3>No Judgment Zone</h3>
+                    <p>Share your thoughts, fears, dreams, and daily moments with an AI friend who listens without judgment and celebrates your growth.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">⏰</span>
+                    <h3>Always Available</h3>
+                    <p>3AM thoughts? Random weekend boredom? Your AI friend is there 24/7, ready to chat, suggest activities, or just listen.</p>
                 </div>
             </div>
 
             <div style="text-align: center; margin-top: 80px;">
                 <div class="cta-buttons">
-                    <a href="signup.html" class="btn btn-primary">Start Free Today</a>
+                    <a href="app.html" class="btn btn-primary">Start Free Today</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">Kinly</div>
-                <div class="footer-links">
-                    <a href="privacy.html">Privacy Policy</a>
-                    <a href="terms.html">Terms of Service</a>
-                    <a href="contact.html">Contact</a>
+    <!-- Updated Footer -->
+    <footer style="background: rgba(0, 0, 0, 0.9); color: white; padding: 60px 20px 30px; margin-top: 100px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
+                
+                <!-- Company Info -->
+                <div>
+                    <h3 style="color: #84cc16; margin-bottom: 20px; font-size: 1.2rem;">Kinly</h3>
+                    <p style="opacity: 0.8; line-height: 1.6; margin-bottom: 20px;">
+                        Your AI friend who gets you offline and into your community. Building real connections in a digital world.
+                    </p>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Contact:</strong><br>
+                        <a href="mailto:hello@getkinly.app" style="color: #84cc16; text-decoration: none;">hello@getkinly.app</a>
+                    </div>
+                </div>
+                
+                <!-- Product Links -->
+                <div>
+                    <h4 style="margin-bottom: 20px; color: white;">Product</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="#features" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;" onclick="scrollToSection('features')">Features</a>
+                        <a href="signup.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Pricing</a>
+                    </div>
+                </div>
+                
+                <!-- Support Links -->
+                <div>
+                    <h4 style="margin-bottom: 20px; color: white;">Support</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="contact.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Contact Us</a>
+                        <a href="privacy.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Privacy Policy</a>
+                        <a href="terms.html" style="color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s;">Terms of Service</a>
+                    </div>
+                </div>
+                
+                <!-- Social/Beta -->
+                <div>
+                    <h4 style="margin-bottom: 20px; color: white;">Beta Community</h4>
+                    <p style="opacity: 0.8; margin-bottom: 15px; font-size: 0.9rem;">
+                        Join our beta group and help design the future of AI friendship.
+                    </p>
+                    <a href="app.html?trial=true" style="background: linear-gradient(45deg, #3b82f6, #84cc16); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-block;">
+                        Join Beta
+                    </a>
+                </div>
+                
+            </div>
+            
+            <!-- Copyright and Legal -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div style="opacity: 0.7; font-size: 0.9rem;">
+                    © 2025 Kinly. All rights reserved.
+                </div>
+                <div style="display: flex; gap: 20px; font-size: 0.9rem;">
+                    <a href="privacy.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Privacy</a>
+                    <a href="terms.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Terms</a>
+                    <a href="contact.html" style="color: rgba(255,255,255,0.7); text-decoration: none;">Contact</a>
                 </div>
             </div>
         </div>
@@ -816,8 +830,33 @@
             }, 20000);
         }
 
-        // Initialize
+        // Function to smoothly scroll to sections on the page
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Add hover effects for footer links
         document.addEventListener('DOMContentLoaded', function() {
+            const footerLinks = document.querySelectorAll('footer a');
+            footerLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    if (this.style.color === 'rgba(255, 255, 255, 0.8)') {
+                        this.style.color = '#84cc16';
+                    }
+                });
+                link.addEventListener('mouseleave', function() {
+                    if (this.style.color === 'rgb(132, 204, 22)') {
+                        this.style.color = 'rgba(255, 255, 255, 0.8)';
+                    }
+                });
+            });
+
             // Start chat demo
             setTimeout(playMessageSequence, 1000);
             
