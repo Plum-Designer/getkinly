@@ -623,17 +623,113 @@
             addMessage('user', message);
             input.value = '';
             
-            // Simple AI response for demo
-            setTimeout(() => {
-                const responses = [
-                    "That's interesting! Tell me more about that.",
-                    "I'd love to help you explore that further!",
-                    "Have you thought about trying that locally?",
-                    "That sounds like something fun to do in your area!"
-                ];
-                const response = responses[Math.floor(Math.random() * responses.length)];
-                addMessage('ai', response);
-            }, 1000);
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                // Get context for conversations
+                const userContext = getUserContext();
+                
+                // Call the Netlify function (or fallback to demo responses)
+                const response = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationHistory: conversationHistory.slice(-10),
+                        userContext: userContext
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    hideTypingIndicator();
+                    addMessage('ai', data.response);
+                } else {
+                    throw new Error('API not available');
+                }
+                
+            } catch (error) {
+                console.log('Using demo responses (API not available)');
+                hideTypingIndicator();
+                
+                // Better demo responses that actually respond to the conversation
+                const contextualResponse = generateContextualResponse(message, conversationHistory);
+                addMessage('ai', contextualResponse);
+            }
+        }
+
+        // Generate contextual demo responses
+        function generateContextualResponse(userMessage, history) {
+            const msg = userMessage.toLowerCase();
+            const userName = usageManager.userData.name;
+            
+            // Greeting responses
+            if (msg.includes('hi') || msg.includes('hello') || msg.includes('hey')) {
+                return `Hey ${userName}! Great to see you. What's been going on in your world lately?`;
+            }
+            
+            // Chat-related responses - be more encouraging about real-world stuff
+            if (msg.includes('just want to chat') || msg.includes('want to chat')) {
+                return `I'm all ears, ${userName}! Though I have to ask - when's the last time you had a great conversation with someone new in person? 😉 But seriously, what's on your mind?`;
+            }
+            
+            if (msg.includes('chat') || msg.includes('talk')) {
+                return `Love chatting with you too, ${userName}! You know what's even better than chatting online? Finding cool people to chat with at that new coffee shop downtown. But tell me, what's got your attention today?`;
+            }
+            
+            // Boredom/activity responses
+            if (msg.includes('bored') || msg.includes('nothing to do')) {
+                return `${userName}, boredom is just your brain begging for adventure! What kind of stuff usually gets you excited? I bet there's something happening in your area right now.`;
+            }
+            
+            // Default responses with personality
+            const personalityResponses = [
+                `That's fascinating, ${userName}! Tell me more - and don't overthink it, just say what comes to mind.`,
+                `Interesting perspective, ${userName}. You know what might give you even more insight? Getting out and experiencing it firsthand!`,
+                `I love how your mind works, ${userName}. Have you ever thought about finding others who think about this stuff too? There might be meetups or groups in your area.`,
+                `You're making me curious, ${userName}. What would happen if you explored this idea in the real world?`,
+                `${userName}, you've got me thinking! This sounds like something you could actually try locally. Want to brainstorm some options?`
+            ];
+            
+            return personalityResponses[Math.floor(Math.random() * personalityResponses.length)];
+        }
+
+        // Get user context for AI
+        function getUserContext() {
+            let context = `User's name: ${usageManager.userData.name}\n`;
+            if (usageManager.userData.interests && usageManager.userData.interests.length > 0) {
+                context += `User's interests: ${usageManager.userData.interests.join(', ')}\n`;
+            }
+            context += `You are Kinly, a friendly AI companion who helps people get outside and discover local activities. Be conversational, supportive, and occasionally suggest local activities when appropriate.`;
+            return context;
+        }
+
+        // Typing indicator functions
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message ai">
+                    <div class="message-avatar">🤖</div>
+                    <div>
+                        <div class="message-sender">Kinly</div>
+                        <div style="color: #6b7280; font-style: italic;">typing...</div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
         }
 
         function handleKeyPress(event) {
