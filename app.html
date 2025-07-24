@@ -228,7 +228,6 @@
 
         /* Chat Interface Responsive */
         .chat-container {
-            display: none;
             background: var(--white);
             border-radius: clamp(10px, 3vw, 20px);
             overflow: hidden;
@@ -237,7 +236,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             min-height: min(80vh, 600px);
             height: auto;
-            display: flex;
+            display: none; /* Hidden by default, shown by JavaScript */
             flex-direction: column;
         }
 
