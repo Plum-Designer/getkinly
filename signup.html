@@ -471,6 +471,14 @@
                             <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
                             <div id="confirmPasswordError" class="error-message" style="display: none;"></div>
                         </div>
+
+                        <div class="form-group full-width">
+                            <label for="interests">What interests you? (Optional)</label>
+                            <input type="text" id="interests" name="interests" placeholder="e.g., hiking, art classes, coffee shops, live music, cooking...">
+                            <div style="font-size: 0.85rem; color: #6b7280; margin-top: 5px;">
+                                Help Kinly find activities you'll love! Separate with commas.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -522,13 +530,13 @@
                             </ul>
                         </div>
 
-                        <!-- Kinfolk Plan -->
-                        <div class="plan-card coming-soon" data-plan="kinfolk">
+                        <!-- Explorer Plan -->
+                        <div class="plan-card coming-soon" data-plan="explorer" onclick="selectPlan('explorer')">
                             <div class="coming-soon-badge">Coming Soon</div>
-                            <input type="radio" name="plan" value="kinfolk" class="radio-input" id="plan-kinfolk" disabled>
+                            <input type="radio" name="plan" value="explorer" class="radio-input" id="plan-explorer" disabled>
                             
                             <div class="plan-header">
-                                <div class="plan-name">Kinfolk Plan</div>
+                                <div class="plan-name">Explorer Plan</div>
                                 <div class="plan-price">
                                     $19.99
                                     <span class="period">/month</span>
@@ -600,18 +608,21 @@
                 monthlySearches: 6,
                 description: 'Great for regular users who want more conversations!'
             },
-            kinfolk: {
-                name: 'Kinfolk Plan',
+            explorer: {
+                name: 'Explorer Plan',
                 price: '$19.99/month',
                 messagesPerDay: 160,
                 monthlySearches: 8,
-                description: 'Coming soon with human chat connections!'
+                description: 'For adventurers who want unlimited local discoveries!'
             }
         };
 
         // Plan selection
         function selectPlan(planType) {
-            if (planType === 'kinfolk') return; // Disabled for now
+            if (planType === 'explorer') {
+                // Show coming soon message but allow selection for planning
+                alert('The Explorer Plan is coming soon! You can still select it to see pricing and features.');
+            }
             
             selectedPlan = planType;
             
@@ -691,6 +702,7 @@
             const name = document.getElementById('name').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const interests = document.getElementById('interests').value.trim();
             
             // Clear previous errors
             document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
@@ -744,6 +756,7 @@
                 name: name,
                 password: btoa(password), // Simple base64 encoding (in production, use proper hashing)
                 plan: selectedPlan,
+                interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
                 createdAt: new Date().toISOString()
             };
             
@@ -752,6 +765,7 @@
                 email: email,
                 name: name,
                 plan: selectedPlan,
+                interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
                 planDetails: {
                     messagesPerDay: plans[selectedPlan].messagesPerDay,
                     monthlySearches: plans[selectedPlan].monthlySearches
@@ -762,6 +776,7 @@
                 },
                 monthlySearchesUsed: 0,
                 monthlyResetDate: getNextMonthlyReset(),
+                activityFollowUps: [], // Track suggested activities for follow-up
                 createdAt: new Date().toISOString()
             };
             
