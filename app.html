@@ -53,13 +53,12 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
             background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-blue) 50%, var(--gray-600) 100%);
             min-height: 100vh;
-            min-height: 100dvh; /* Dynamic viewport height */
+            min-height: 100dvh;
             color: var(--white);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Container System */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -73,27 +72,10 @@
             padding: var(--section-gap);
             min-height: 100vh;
             min-height: 100dvh;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            display: none; /* Hidden by default */
-        }
-
-        .login-required-screen h1 {
-            font-size: clamp(2rem, 8vw, 3.5rem);
-            margin-bottom: clamp(15px, 4vw, 20px);
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            line-height: 1.1;
-        }
-
-        .login-required-screen .subtitle {
-            font-size: clamp(1rem, 4vw, 1.4rem);
-            margin-bottom: clamp(15px, 4vw, 20px);
-            opacity: 0.95;
-            max-width: 600px;
-            line-height: 1.4;
         }
 
         .login-card {
@@ -107,79 +89,6 @@
             width: 100%;
         }
 
-        /* Welcome Screen Responsive */
-        .welcome-screen {
-            text-align: center;
-            color: var(--white);
-            padding: var(--section-gap);
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .welcome-screen h1 {
-            font-size: clamp(2rem, 8vw, 3.5rem);
-            margin-bottom: clamp(15px, 4vw, 20px);
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            line-height: 1.1;
-        }
-
-        .welcome-screen .subtitle {
-            font-size: clamp(1rem, 4vw, 1.4rem);
-            margin-bottom: clamp(15px, 4vw, 20px);
-            opacity: 0.95;
-            max-width: 600px;
-            line-height: 1.4;
-        }
-
-        .user-info-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border-radius: clamp(15px, 4vw, 20px);
-            padding: var(--card-padding);
-            margin: var(--section-gap) auto;
-            max-width: min(500px, 90vw);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 100%;
-        }
-
-        .plan-info {
-            background: rgba(132, 204, 22, 0.2);
-            border: 1px solid rgba(132, 204, 22, 0.3);
-            border-radius: 12px;
-            padding: clamp(15px, 4vw, 20px);
-            margin: clamp(15px, 4vw, 20px) 0;
-        }
-
-        .usage-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: clamp(10px, 3vw, 15px);
-            margin: clamp(15px, 4vw, 20px) 0;
-        }
-
-        .usage-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: clamp(12px, 3vw, 15px);
-            text-align: center;
-        }
-
-        .usage-number {
-            font-size: clamp(1.2rem, 4vw, 1.5rem);
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .usage-label {
-            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-            opacity: 0.8;
-        }
-
         /* Button System */
         .btn {
             background: linear-gradient(45deg, var(--primary-blue), var(--dark-blue));
@@ -191,14 +100,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
-            margin: clamp(5px, 2vw, 10px);
-            font-weight: 600;
-            min-height: 44px; /* Touch target */
             display: inline-flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            font-weight: 600;
+            min-height: 44px;
+            margin: clamp(5px, 2vw, 10px);
         }
 
         .btn:hover {
@@ -209,10 +117,6 @@
         .btn-secondary {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid var(--white);
-        }
-
-        .btn-upgrade {
-            background: linear-gradient(45deg, var(--primary-green), var(--dark-green));
         }
 
         .btn-logout {
@@ -226,7 +130,7 @@
             color: white;
         }
 
-        /* Chat Interface Responsive */
+        /* Chat Interface */
         .chat-container {
             background: var(--white);
             border-radius: clamp(10px, 3vw, 20px);
@@ -236,7 +140,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             min-height: min(80vh, 600px);
             height: auto;
-            display: none; /* Hidden by default, shown by JavaScript */
+            display: none;
             flex-direction: column;
         }
 
@@ -285,24 +189,6 @@
             opacity: 0.9;
         }
 
-        .usage-warning,
-        .usage-depleted {
-            background: rgba(251, 113, 133, 0.2);
-            border: 1px solid rgba(251, 113, 133, 0.3);
-            color: var(--red-500);
-            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 20px);
-            border-radius: 8px;
-            margin: clamp(10px, 3vw, 15px);
-            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-        }
-
-        .usage-depleted {
-            background: rgba(239, 68, 68, 0.1);
-            border: 2px solid var(--red-500);
-            text-align: center;
-            padding: clamp(15px, 4vw, 20px);
-        }
-
         .chat-messages {
             height: 450px;
             overflow-y: auto;
@@ -322,14 +208,8 @@
         }
 
         @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.user {
@@ -357,11 +237,6 @@
             color: var(--white);
         }
 
-        .message.system .message-avatar {
-            background: linear-gradient(45deg, var(--primary-green), var(--dark-green));
-            color: var(--white);
-        }
-
         .message-content {
             max-width: min(70%, 400px);
             padding: clamp(12px, 3vw, 14px) clamp(15px, 4vw, 18px);
@@ -382,12 +257,6 @@
         .message.user .message-content {
             background: linear-gradient(45deg, var(--primary-blue), var(--dark-blue));
             color: var(--white);
-        }
-
-        .message.system .message-content {
-            background: #f0f9ff;
-            color: #166534;
-            border: 1px solid #a7f3d0;
         }
 
         .message-sender {
@@ -412,19 +281,14 @@
             border: 2px solid var(--gray-200);
             border-radius: 25px;
             outline: none;
-            font-size: clamp(14px, 3.5vw, 16px); /* Prevents iOS zoom */
+            font-size: clamp(14px, 3.5vw, 16px);
             transition: border-color 0.3s ease;
-            min-height: 44px; /* Touch target */
+            min-height: 44px;
         }
 
         .chat-input:focus {
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .chat-input:disabled {
-            background: var(--gray-50);
-            cursor: not-allowed;
         }
 
         .send-btn {
@@ -437,7 +301,7 @@
             font-weight: bold;
             transition: all 0.3s ease;
             min-width: clamp(70px, 15vw, 80px);
-            min-height: 44px; /* Touch target */
+            min-height: 44px;
             font-size: clamp(0.9rem, 3vw, 1rem);
         }
 
@@ -449,93 +313,6 @@
         .send-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
-        }
-
-        .chat-controls {
-            display: flex;
-            gap: clamp(8px, 2vw, 12px);
-            padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 20px);
-            background: var(--gray-50);
-            border-top: 1px solid var(--gray-200);
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .control-btn {
-            padding: clamp(8px, 2vw, 12px) clamp(15px, 4vw, 20px);
-            border: 2px solid transparent;
-            background: var(--white);
-            color: var(--gray-700);
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-height: 40px; /* Touch target */
-            white-space: nowrap;
-        }
-
-        .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .controls-left,
-        .controls-right {
-            display: flex;
-            gap: clamp(8px, 2vw, 12px);
-            flex-wrap: wrap;
-        }
-
-        /* AI Disclaimer */
-        .ai-disclaimer {
-            background: rgba(156, 163, 175, 0.1);
-            border-top: 1px solid var(--gray-200);
-            padding: clamp(10px, 3vw, 12px) clamp(15px, 4vw, 20px);
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            color: var(--gray-500);
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        /* Typing Indicator */
-        .typing-indicator {
-            display: none;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .typing-indicator.show {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: fadeInUp 0.3s ease-out;
-        }
-
-        .typing-dots {
-            display: flex;
-            gap: 4px;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--gray-400);
-            border-radius: 50%;
-            animation: typingPulse 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typingPulse {
-            0%, 80%, 100% { transform: scale(1); opacity: 0.5; }
-            40% { transform: scale(1.2); opacity: 1; }
         }
 
         /* Notification System */
@@ -561,35 +338,13 @@
 
         .notification.error {
             background: linear-gradient(45deg, var(--red-500), #dc2626);
-            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
         }
 
         .notification.info {
             background: linear-gradient(45deg, var(--primary-blue), var(--dark-blue));
-            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
         }
 
-        .notification.warning {
-            background: linear-gradient(45deg, var(--yellow-500), #d97706);
-            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.3);
-        }
-
-        /* Loading States */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: var(--white);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Mobile Specific (320px - 768px) */
+        /* Mobile responsive */
         @media (max-width: 768px) {
             .chat-container {
                 height: 100vh;
@@ -614,114 +369,6 @@
                 height: calc(100vh - 180px);
                 height: calc(100dvh - 180px);
             }
-
-            .btn {
-                width: 100%;
-                margin: 5px 0;
-            }
-
-            .controls-left,
-            .controls-right {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .notification {
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                transform: translateY(-100%);
-                max-width: none;
-            }
-
-            .notification.show {
-                transform: translateY(0);
-            }
-        }
-
-        /* Tablet Specific (769px - 1024px) */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .container {
-                padding: 20px;
-            }
-
-            .chat-container {
-                max-width: 100%;
-                height: calc(100vh - 40px);
-                margin: 20px;
-            }
-
-            .usage-stats {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .chat-controls {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-
-            .message-content {
-                max-width: 60%;
-            }
-        }
-
-        /* Large screens (1025px+) */
-        @media (min-width: 1025px) {
-            .chat-container {
-                max-width: 900px;
-            }
-
-            .user-info-card {
-                max-width: 500px;
-            }
-        }
-
-        /* Touch improvements */
-        @media (hover: none) and (pointer: coarse) {
-            .btn:hover,
-            .control-btn:hover,
-            .send-btn:hover {
-                transform: none;
-            }
-
-            .btn:active,
-            .control-btn:active,
-            .send-btn:active {
-                transform: scale(0.98);
-            }
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .chat-messages {
-                background: linear-gradient(to bottom, var(--gray-800), var(--gray-700));
-            }
-
-            .message.ai .message-content {
-                background: var(--gray-700);
-                color: var(--white);
-                border-color: var(--gray-600);
-            }
-        }
-
-        /* Reduce motion for accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* High contrast mode */
-        @media (prefers-contrast: high) {
-            .btn {
-                border: 2px solid var(--white);
-            }
-            
-            .message-content {
-                border: 2px solid currentColor;
-            }
         }
     </style>
 </head>
@@ -730,7 +377,6 @@
         <!-- Login Required Screen -->
         <div id="loginRequiredScreen" class="login-required-screen">
             <h1>Welcome to Kinly!</h1>
-            <p class="subtitle">Join thousands discovering local adventures with their AI friend</p>
             
             <div class="login-card">
                 <h3>Ready to start chatting?</h3>
@@ -755,37 +401,357 @@
             </div>
         </div>
 
-        <!-- Welcome Screen for Logged In Users -->
-        <div id="welcomeScreen" class="welcome-screen">
-            <h1>Welcome to Kinly!</h1>
-            <p class="subtitle">Your AI friend is ready to help you connect</p>
+        <!-- Chat Interface -->
+        <div id="chat" class="chat-container">
+            <div class="chat-header">
+                <div class="chat-status">
+                    <div class="status-indicator"></div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span>Connected to Kinly</span>
+                        <span style="font-size: 0.8rem; opacity: 0.8;" id="planDisplay">Connect Plan</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="usage-display" id="headerUsage">
+                        15 messages • 1 search remaining
+                    </div>
+                    <button class="btn btn-secondary" onclick="showAccountModal()" style="margin-left: 15px; padding: 8px 15px; font-size: 0.9rem;">
+                        Account
+                    </button>
+                    <button class="btn btn-logout" onclick="logout()" style="margin-left: 10px; padding: 8px 15px; font-size: 0.9rem;">
+                        Logout
+                    </button>
+                </div>
+            </div>
             
-            <div class="user-info-card">
-                <h3>Welcome, <span id="userName">Friend</span>!</h3>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be populated here -->
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let currentUser = null;
+        let messages = [];
+        let conversationHistory = [];
+
+        // URL Parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const goDirectToChat = urlParams.get('chat');
+
+        // Usage Management
+        class UsageManager {
+            constructor() {
+                this.userData = this.loadUserData();
+                this.updateUI();
+            }
+
+            loadUserData() {
+                const stored = localStorage.getItem('kinly_user_data');
+                if (stored) {
+                    return JSON.parse(stored);
+                }
                 
-                <div class="plan-info">
-                    <h4 id="planName">Connect Plan</h4>
-                    <div class="usage-stats">
-                        <div class="usage-item">
-                            <div class="usage-number" id="chatsRemaining">15</div>
-                            <div class="usage-label">Messages Today</div>
-                        </div>
-                        <div class="usage-item">
-                            <div class="usage-number" id="searchesRemaining">1</div>
-                            <div class="usage-label">Activity Searches</div>
+                return {
+                    name: 'Friend',
+                    email: null,
+                    plan: 'connect',
+                    planDetails: {
+                        messagesPerDay: 15,
+                        monthlySearches: 1
+                    },
+                    dailyUsage: {
+                        messagesUsed: 0,
+                        date: new Date().toDateString()
+                    },
+                    monthlySearchesUsed: 0,
+                    monthlyResetDate: this.getNextMonthlyReset(),
+                    createdAt: new Date().toISOString()
+                };
+            }
+
+            saveUserData() {
+                localStorage.setItem('kinly_user_data', JSON.stringify(this.userData));
+            }
+
+            getNextMonthlyReset() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                return nextMonth.getTime();
+            }
+
+            checkAndResetDaily() {
+                const today = new Date().toDateString();
+                if (this.userData.dailyUsage.date !== today) {
+                    this.userData.dailyUsage = {
+                        messagesUsed: 0,
+                        date: today
+                    };
+                    this.saveUserData();
+                    return true;
+                }
+                return false;
+            }
+
+            canSendMessage() {
+                this.checkAndResetDaily();
+                return this.userData.dailyUsage.messagesUsed < this.userData.planDetails.messagesPerDay;
+            }
+
+            useMessage() {
+                this.checkAndResetDaily();
+                if (this.canSendMessage()) {
+                    this.userData.dailyUsage.messagesUsed++;
+                    this.saveUserData();
+                    this.updateUI();
+                    return true;
+                }
+                return false;
+            }
+
+            getRemainingMessages() {
+                this.checkAndResetDaily();
+                return Math.max(0, this.userData.planDetails.messagesPerDay - this.userData.dailyUsage.messagesUsed);
+            }
+
+            getRemainingSearches() {
+                return Math.max(0, this.userData.planDetails.monthlySearches - this.userData.monthlySearchesUsed);
+            }
+
+            updateUI() {
+                const messagesRemaining = this.getRemainingMessages();
+                const searchesRemaining = this.getRemainingSearches();
+                
+                // Update plan display in chat header
+                const planNames = {
+                    'connect': 'Connect Plan',
+                    'community': 'Community Plan', 
+                    'explorer': 'Explorer Plan'
+                };
+                const planDisplay = document.getElementById('planDisplay');
+                if (planDisplay) {
+                    planDisplay.textContent = planNames[this.userData.plan] || 'Connect Plan';
+                }
+                
+                // Update usage text
+                const usageText = `${messagesRemaining} messages • ${searchesRemaining} search${searchesRemaining !== 1 ? 'es' : ''} remaining`;
+                const headerUsage = document.getElementById('headerUsage');
+                if (headerUsage) {
+                    headerUsage.textContent = usageText;
+                }
+            }
+        }
+
+        // Initialize usage manager
+        const usageManager = new UsageManager();
+
+        // Welcome message function
+        function getWelcomeMessage() {
+            const hour = new Date().getHours();
+            const name = usageManager.userData.name;
+            
+            const greetings = [
+                `Hey ${name}! How's your day going?`,
+                `Hi there! What's on your mind today?`,
+                `Good ${hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'}! Ready for an adventure?`
+            ];
+            
+            return greetings[Math.floor(Math.random() * greetings.length)];
+        }
+
+        // Chat Functions
+        function addMessage(sender, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            let senderName = '';
+            let avatar = '';
+            
+            if (sender === 'ai') {
+                senderName = 'Kinly';
+                avatar = '🤖';
+            } else if (sender === 'user') {
+                senderName = usageManager.userData.name;
+                avatar = '😊';
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div>
+                    <div class="message-sender">${senderName}</div>
+                    <div class="message-content">${content}</div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            messages.push({ sender, content, timestamp: new Date() });
+            
+            if (sender !== 'system') {
+                const role = sender === 'user' ? 'user' : 'assistant';
+                conversationHistory.push({ role, content });
+                
+                if (conversationHistory.length > 20) {
+                    conversationHistory = conversationHistory.slice(-20);
+                }
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            if (!usageManager.canSendMessage()) {
+                showNotification('Daily message limit reached! Upgrade for more messages.', 'error');
+                return;
+            }
+
+            if (!usageManager.useMessage()) {
+                return;
+            }
+
+            addMessage('user', message);
+            input.value = '';
+            
+            // Simple AI response for demo
+            setTimeout(() => {
+                const responses = [
+                    "That's interesting! Tell me more about that.",
+                    "I'd love to help you explore that further!",
+                    "Have you thought about trying that locally?",
+                    "That sounds like something fun to do in your area!"
+                ];
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                addMessage('ai', response);
+            }, 1000);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function showAccountModal() {
+            const userData = usageManager.userData;
+            const modalContent = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;">
+                    <div style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; color: #1f2937;">
+                        <h3 style="margin-bottom: 20px; color: #3b82f6;">Account Details</h3>
+                        <p><strong>Name:</strong> ${userData.name}</p>
+                        <p><strong>Plan:</strong> ${userData.plan === 'connect' ? 'Connect Plan' : userData.plan === 'community' ? 'Community Plan' : 'Explorer Plan'}</p>
+                        <p><strong>Daily Messages:</strong> ${userData.dailyUsage.messagesUsed} / ${userData.planDetails.messagesPerDay}</p>
+                        <div style="margin-top: 20px;">
+                            <button onclick="this.closest('div').remove()" style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer;">Close</button>
                         </div>
                     </div>
                 </div>
-                
-                <p style="margin-bottom: 30px; opacity: 0.9;">Ready to start chatting with Kinly and discovering activities in your community?</p>
-                
-                <button class="btn btn-activity" onclick="startChatting()" id="startBtn">
-                    Start Your First Conversation
-                </button>
-                
-                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="index.html" class="btn btn-secondary">← Back to Home</a>
-                    <button class="btn btn-logout" onclick="logout()">Logout</button>
-                </div>
-            </div>
-        </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('kinly_user');
+                localStorage.removeItem('kinly_user_data');
+                showNotification('Logged out successfully', 'info');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            }
+        }
+
+        function showNotification(message, type = 'success', duration = 4000) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+
+        // Authentication Functions
+        function checkAuthentication() {
+            const user = localStorage.getItem('kinly_user');
+            if (!user) {
+                return false;
+            }
+            
+            try {
+                const userData = JSON.parse(user);
+                return userData.email && userData.loginTime;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                localStorage.removeItem('kinly_user');
+                return false;
+            }
+        }
+
+        function showLoginRequired() {
+            document.getElementById('loginRequiredScreen').style.display = 'flex';
+            document.getElementById('chat').style.display = 'none';
+        }
+
+        function addWelcomeMessage() {
+            const message = getWelcomeMessage();
+            addMessage('ai', message);
+            
+            // If user has interests, mention them
+            if (usageManager.userData.interests && usageManager.userData.interests.length > 0) {
+                setTimeout(() => {
+                    const interestMessage = `I see you're interested in ${usageManager.userData.interests.join(', ')}! I'll keep that in mind when suggesting local activities. What would you like to chat about today?`;
+                    addMessage('ai', interestMessage);
+                }, 2000);
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Kinly app loaded');
+            
+            // Check authentication first
+            if (!checkAuthentication()) {
+                console.log('Not authenticated, showing login required');
+                showLoginRequired();
+                return;
+            }
+            
+            console.log('User is authenticated, starting chat immediately');
+            
+            // For authenticated users, show chat directly
+            document.getElementById('loginRequiredScreen').style.display = 'none';
+            document.getElementById('chat').style.display = 'flex';
+            
+            // Initialize current user
+            currentUser = usageManager.userData;
+            
+            // Add welcome message
+            addWelcomeMessage();
+            
+            // Show welcome notification for new users
+            if (goDirectToChat) {
+                showNotification('Welcome to Kinly! Start chatting below.', 'success');
+            }
+            
+            console.log('Chat should now be visible');
+        });
+    </script>
+</body>
+</html>
