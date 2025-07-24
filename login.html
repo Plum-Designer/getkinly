@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Kinly</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Log in to your Kinly account and continue chatting with your AI friend.">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kinly">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #84cc16 0%, #3b82f6 50%, #64748b 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            color: #1f2937;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            color: #1f2937;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .forgot-password a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #3b82f6, #84cc16);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .signup-link p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .signup-link a {
+            color: #84cc16;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">Kinly</div>
+        <p class="subtitle">Welcome back! Log in to continue your journey.</p>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+                <div id="emailError" class="error-message"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+                <div id="passwordError" class="error-message"></div>
+            </div>
+            
+            <div class="forgot-password">
+                <a href="#" id="forgotPasswordLink">Forgot your password?</a>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span id="loginText">Log In</span>
+                <span id="loginLoading" class="loading" style="display: none;"></span>
+            </button>
+        </form>
+        
+        <div class="signup-link">
+            <p>Don't have an account?</p>
+            <a href="signup.html">Create your account here</a>
+        </div>
+        
+        <div class="back-link">
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validation
+            if (!email || !password) {
+                showError('email', 'Please enter your email address');
+                showError('password', 'Please enter your password');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showError('email', 'Please enter a valid email address');
+                return;
+            }
+            
+            // Start loading
+            setLoadingState(true);
+            
+            // Check credentials
+            setTimeout(() => {
+                if (authenticateUser(email, password)) {
+                    // Success
+                    showSuccess('Login successful! Redirecting...');
+                    
+                    // Store user session
+                    localStorage.setItem('kinly_user', JSON.stringify({
+                        email: email,
+                        name: getUserName(email),
+                        loginTime: new Date().toISOString()
+                    }));
+                    
+                    // Track login
+                    if (window.sa_event) {
+                        window.sa_event('user_login', {
+                            email: email
+                        });
+                    }
+                    
+                    // Redirect to chat
+                    setTimeout(() => {
+                        window.location.href = 'app.html?chat=true';
+                    }, 1500);
+                    
+                } else {
+                    // Failed
+                    setLoadingState(false);
+                    showError('password', 'Invalid email or password');
+                }
+            }, 1000);
+        });
+
+        function authenticateUser(email, password) {
+            // Get stored accounts
+            const accounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+            
+            if (!accounts[email]) {
+                return false; // Email not found
+            }
+            
+            // Simple password check (base64 decoded)
+            const storedPassword = atob(accounts[email].password);
+            return password === storedPassword;
+        }
+
+        function getUserName(email) {
+            const accounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+            return accounts[email] ? accounts[email].name : email.split('@')[0];
+        }
+
+        function showError(field, message) {
+            const input = document.getElementById(field);
+            const errorEl = document.getElementById(field + 'Error');
+            
+            input.classList.add('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+        }
+
+        function setLoadingState(loading) {
+            const btn = document.getElementById('loginBtn');
+            const text = document.getElementById('loginText');
+            const loadingSpinner = document.getElementById('loginLoading');
+            
+            btn.disabled = loading;
+            
+            if (loading) {
+                text.style.display = 'none';
+                loadingSpinner.style.display = 'inline-block';
+            } else {
+                text.style.display = 'inline-block';
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            const user = localStorage.getItem('kinly_user');
+            if (user) {
+                // User is already logged in, redirect to app
+                window.location.href = 'app.html';
+            }
+        });
+
+        // Focus on email field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').focus();
+        });
+
+        // Forgot password functionality
+        document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                alert('Please enter your email address first, then click "Forgot your password?"');
+                document.getElementById('email').focus();
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address first.');
+                document.getElementById('email').focus();
+                return;
+            }
+            
+            // Check if account exists
+            const accounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+            if (!accounts[email]) {
+                alert('No account found with this email address. Please check your email or create a new account.');
+                return;
+            }
+            
+            // In a real app, you'd send a reset email
+            // For demo purposes, we'll show the password (in production, never do this!)
+            const storedPassword = atob(accounts[email].password);
+            
+            if (confirm(`Password reset would normally be sent to your email.\n\nFor demo purposes, your password is: ${storedPassword}\n\nWould you like to continue to login?`)) {
+                document.getElementById('password').value = storedPassword;
+                document.getElementById('password').focus();
+            }
+        });
+    </script>
+    
+    <!-- 100% privacy-first analytics -->
+    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+</body>
+</html>
