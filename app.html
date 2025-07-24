@@ -890,7 +890,13 @@
                 // Get context for conversations
                 const userContext = getUserContext();
                 
-                // Call the Netlify function (or fallback to demo responses)
+                console.log('Sending to API:', {
+                    message: message,
+                    userContext: userContext,
+                    conversationHistory: conversationHistory.slice(-10)
+                });
+                
+                // Call the Netlify function
                 const response = await fetch('/.netlify/functions/chat', {
                     method: 'POST',
                     headers: {
@@ -906,13 +912,15 @@
                 if (response.ok) {
                     const data = await response.json();
                     hideTypingIndicator();
+                    console.log('API Response:', data);
                     addMessage('ai', data.response);
                 } else {
+                    console.log('API Error, using demo responses');
                     throw new Error('API not available');
                 }
                 
             } catch (error) {
-                console.log('Using demo responses (API not available)');
+                console.log('Using demo responses (API not available):', error);
                 hideTypingIndicator();
                 
                 // Better demo responses that actually respond to the conversation
@@ -924,11 +932,29 @@
         // Generate contextual demo responses
         function generateContextualResponse(userMessage, history) {
             const msg = userMessage.toLowerCase();
-            const userName = usageManager.userData.name;
+            let userName = usageManager.userData.name;
+            
+            // Check if user is trying to change their name in this conversation
+            if (msg.includes('call me ') || msg.includes('my name is ') || msg.includes("i'm ")) {
+                const nameMatch = msg.match(/call me (\w+)|my name is (\w+)|i'm (\w+)/);
+                if (nameMatch) {
+                    const newName = nameMatch[1] || nameMatch[2] || nameMatch[3];
+                    // Update the user's name for this session
+                    usageManager.userData.name = newName;
+                    userName = newName;
+                    return `You got it, ${userName}! I'll remember that. What's on your mind today?`;
+                }
+            }
             
             // Greeting responses
             if (msg.includes('hi') || msg.includes('hello') || msg.includes('hey')) {
                 return `Hey ${userName}! Great to see you. What's been going on in your world lately?`;
+            }
+            
+            // Activity search responses
+            if (msg.includes('find') || msg.includes('look for') || msg.includes('recommend') || 
+                msg.includes('lounge') || msg.includes('restaurant') || msg.includes('coffee')) {
+                return `I'd love to help you find some great spots, ${userName}! Since I'm running in demo mode right now, I can't search for real places, but I'd normally find you some amazing local options. What kind of vibe are you going for?`;
             }
             
             // Chat-related responses - be more encouraging about real-world stuff
