@@ -492,7 +492,7 @@
                             </div>
                             
                             <ul class="plan-features">
-                                <li>30 messages every 5 hours</li>
+                                <li>15 messages per day</li>
                                 <li>1 activity search per month</li>
                                 <li>Basic personality memory</li>
                                 <li>Community activity suggestions</li>
@@ -513,7 +513,7 @@
                             </div>
                             
                             <ul class="plan-features">
-                                <li>70 messages every 5 hours</li>
+                                <li>100 messages per day</li>
                                 <li>6 activity searches per month</li>
                                 <li>Advanced personality memory</li>
                                 <li>Priority activity suggestions</li>
@@ -536,7 +536,7 @@
                             </div>
                             
                             <ul class="plan-features">
-                                <li>Unlimited messages</li>
+                                <li>160 messages per day</li>
                                 <li>8 activity searches per month</li>
                                 <li>3 human chat connections/month</li>
                                 <li>Advanced community matching</li>
@@ -589,23 +589,21 @@
             connect: {
                 name: 'Connect Plan',
                 price: 'Free',
-                messagesPerWindow: 30,
-                windowHours: 5,
+                messagesPerDay: 15,
                 monthlySearches: 1,
                 description: 'Perfect for getting started with Kinly!'
             },
             community: {
                 name: 'Community Plan',
                 price: '$12.99/month',
-                messagesPerWindow: 70,
-                windowHours: 5,
+                messagesPerDay: 100,
                 monthlySearches: 6,
                 description: 'Great for regular users who want more conversations!'
             },
             kinfolk: {
                 name: 'Kinfolk Plan',
                 price: '$19.99/month',
-                messagesPerWindow: 'Unlimited',
+                messagesPerDay: 160,
                 monthlySearches: 8,
                 description: 'Coming soon with human chat connections!'
             }
@@ -634,11 +632,9 @@
             const summaryEl = document.getElementById('planSummary');
             const textEl = document.getElementById('summaryText');
             
-            const messagesText = plan.messagesPerWindow === 'Unlimited' ? 'Unlimited messages' : `${plan.messagesPerWindow} messages every 5 hours`;
-            
             textEl.innerHTML = `
                 You've selected the <strong>${plan.name}</strong> - ${plan.description}
-                <br><small>${messagesText}, ${plan.monthlySearches} activity searches per month</small>
+                <br><small>${plan.messagesPerDay} messages per day, ${plan.monthlySearches} activity searches per month</small>
             `;
             
             summaryEl.classList.add('show');
@@ -757,14 +753,12 @@
                 name: name,
                 plan: selectedPlan,
                 planDetails: {
-                    messagesPerWindow: plans[selectedPlan].messagesPerWindow === 'Unlimited' ? 999999 : plans[selectedPlan].messagesPerWindow,
-                    windowHours: plans[selectedPlan].windowHours || 5,
+                    messagesPerDay: plans[selectedPlan].messagesPerDay,
                     monthlySearches: plans[selectedPlan].monthlySearches
                 },
-                currentWindow: {
+                dailyUsage: {
                     messagesUsed: 0,
-                    windowStart: Date.now(),
-                    windowEnd: Date.now() + (5 * 60 * 60 * 1000) // 5 hours from now
+                    date: new Date().toDateString() // Track by date string
                 },
                 monthlySearchesUsed: 0,
                 monthlyResetDate: getNextMonthlyReset(),
