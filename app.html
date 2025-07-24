@@ -656,7 +656,84 @@
             }
         }
 
-        // Initialize usage manager
+        // Analytics Helper Functions
+        function trackEvent(eventName, properties = {}) {
+            if (window.sa_event) {
+                console.log('Tracking event:', eventName, properties);
+                window.sa_event(eventName, properties);
+            } else {
+                console.log('Simple Analytics not loaded, would track:', eventName, properties);
+            }
+        }
+
+        function trackUserSession() {
+            const userData = usageManager.userData;
+            trackEvent('user_session_start', {
+                plan: userData.plan,
+                messages_remaining: usageManager.getRemainingMessages(),
+                searches_remaining: usageManager.getRemainingSearches(),
+                user_location: userData.location || 'unknown'
+            });
+        }
+
+        function trackChatMessage(messageType, isActivitySearch = false) {
+            const userData = usageManager.userData;
+            trackEvent('chat_message_sent', {
+                message_type: messageType, // 'user' or 'ai'
+                plan: userData.plan,
+                is_activity_search: isActivitySearch,
+                messages_used_today: userData.dailyUsage.messagesUsed,
+                session_length: getSessionLength()
+            });
+        }
+
+        function trackActivitySearch(searchQuery, location) {
+            trackEvent('activity_search', {
+                search_type: categorizeActivitySearch(searchQuery),
+                user_location: location || 'unknown',
+                plan: usageManager.userData.plan,
+                search_query_length: searchQuery.length
+            });
+        }
+
+        function trackUsageLimitHit(limitType) {
+            trackEvent('usage_limit_reached', {
+                limit_type: limitType, // 'daily_messages' or 'monthly_searches'
+                plan: usageManager.userData.plan,
+                user_location: usageManager.userData.location || 'unknown'
+            });
+        }
+
+        function trackConversionEvent(fromPlan, toPlan, trigger) {
+            trackEvent('plan_upgrade_intent', {
+                from_plan: fromPlan,
+                to_plan: toPlan,
+                trigger: trigger, // 'usage_depleted', 'manual', etc.
+                messages_used: usageManager.userData.dailyUsage.messagesUsed
+            });
+        }
+
+        function categorizeActivitySearch(query) {
+            const q = query.toLowerCase();
+            if (q.includes('coffee') || q.includes('cafe')) return 'coffee_shops';
+            if (q.includes('restaurant') || q.includes('food') || q.includes('dinner') || q.includes('lunch')) return 'dining';
+            if (q.includes('bar') || q.includes('lounge') || q.includes('drink')) return 'nightlife';
+            if (q.includes('hike') || q.includes('trail') || q.includes('park') || q.includes('outdoor')) return 'outdoor_activities';
+            if (q.includes('gym') || q.includes('fitness') || q.includes('workout')) return 'fitness';
+            if (q.includes('museum') || q.includes('art') || q.includes('gallery')) return 'arts_culture';
+            if (q.includes('class') || q.includes('workshop') || q.includes('learn')) return 'learning';
+            if (q.includes('event') || q.includes('concert') || q.includes('show')) return 'events';
+            if (q.includes('shop') || q.includes('market') || q.includes('store')) return 'shopping';
+            return 'general_activity';
+        }
+
+        function getSessionLength() {
+            if (!sessionStartTime) return 0;
+            return Math.floor((Date.now() - sessionStartTime) / 1000); // seconds
+        }
+
+        // Track session start time
+        let sessionStartTime = Date.now();
         const usageManager = new UsageManager();
 
         // Conversation Management
@@ -873,6 +950,7 @@
 
             if (!usageManager.canSendMessage()) {
                 showNotification('Daily message limit reached! Upgrade for more messages.', 'error');
+                trackUsageLimitHit('daily_messages');
                 return;
             }
 
@@ -880,8 +958,14 @@
                 return;
             }
 
+            // Detect if this is an activity search
+            const isActivitySearch = isActivitySearchRequest(message);
+            
             addMessage('user', message);
             input.value = '';
+            
+            // Track user message
+            trackChatMessage('user', isActivitySearch);
             
             // Show typing indicator
             showTypingIndicator();
@@ -914,6 +998,12 @@
                     hideTypingIndicator();
                     console.log('API Response:', data);
                     addMessage('ai', data.response);
+                    
+                    // Track AI response and activity search if applicable
+                    trackChatMessage('ai', isActivitySearch);
+                    if (isActivitySearch) {
+                        trackActivitySearch(message, usageManager.userData.location);
+                    }
                 } else {
                     console.log('API Error, using demo responses');
                     throw new Error('API not available');
@@ -926,7 +1016,24 @@
                 // Better demo responses that actually respond to the conversation
                 const contextualResponse = generateContextualResponse(message, conversationHistory);
                 addMessage('ai', contextualResponse);
+                
+                // Track demo response
+                trackChatMessage('ai', isActivitySearch);
+                if (isActivitySearch) {
+                    trackActivitySearch(message, usageManager.userData.location);
+                }
             }
+        }
+
+        // Helper function to detect activity search requests
+        function isActivitySearchRequest(message) {
+            const msg = message.toLowerCase();
+            const triggers = [
+                'find', 'look for', 'search for', 'where can i', 'what to do', 'are there any',
+                'activities', 'restaurants', 'coffee shops', 'museums', 'parks', 'events',
+                'near me', 'in my area', 'local', 'around here', 'recommend', 'suggestion'
+            ];
+            return triggers.some(trigger => msg.includes(trigger));
         }
 
         // Generate contextual demo responses
@@ -1124,6 +1231,9 @@
             
             console.log('User is authenticated, starting chat immediately');
             
+            // Track user session start
+            trackUserSession();
+            
             // For authenticated users, show chat directly
             document.getElementById('loginRequiredScreen').style.display = 'none';
             document.getElementById('chat').style.display = 'flex';
@@ -1149,6 +1259,12 @@
             // Show welcome notification for new users
             if (goDirectToChat) {
                 showNotification('Welcome to Kinly! Start chatting below.', 'success');
+                
+                // Track new user first session
+                trackEvent('new_user_first_chat', {
+                    plan: usageManager.userData.plan,
+                    has_interests: !!(usageManager.userData.interests && usageManager.userData.interests.length > 0)
+                });
             }
             
             console.log('Chat should now be visible');
