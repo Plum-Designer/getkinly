@@ -110,7 +110,8 @@
         }
 
         input[type="text"],
-        input[type="email"] {
+        input[type="email"],
+        input[type="password"] {
             padding: 15px;
             border: 2px solid #e5e7eb;
             border-radius: 12px;
@@ -120,10 +121,22 @@
         }
 
         input[type="text"]:focus,
-        input[type="email"]:focus {
+        input[type="email"]:focus,
+        input[type="password"]:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .password-requirements {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .password-requirements.valid {
+            color: #22c55e;
         }
 
         .plans-grid {
@@ -294,6 +307,19 @@
             transform: translateY(-2px);
         }
 
+        .btn-link {
+            background: none;
+            color: #3b82f6;
+            text-decoration: underline;
+            padding: 8px 16px;
+            font-size: 1rem;
+        }
+
+        .btn-link:hover {
+            color: #1e40af;
+            transform: none;
+        }
+
         .plan-summary {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.2);
@@ -327,6 +353,18 @@
 
         .privacy-note a:hover {
             text-decoration: underline;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .login-link p {
+            color: #6b7280;
+            margin-bottom: 10px;
         }
 
         /* Responsive Design */
@@ -377,6 +415,17 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Error states */
+        .error {
+            border-color: #ef4444 !important;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -399,11 +448,28 @@
                         <div class="form-group">
                             <label for="email">Email Address *</label>
                             <input type="email" id="email" name="email" required placeholder="your@email.com">
+                            <div id="emailError" class="error-message" style="display: none;"></div>
                         </div>
                         
                         <div class="form-group">
                             <label for="name">Preferred Name or Alias *</label>
                             <input type="text" id="name" name="name" required placeholder="What should we call you?">
+                            <div id="nameError" class="error-message" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Create Password *</label>
+                            <input type="password" id="password" name="password" required placeholder="Create a secure password">
+                            <div id="passwordRequirements" class="password-requirements">
+                                Password must be at least 8 characters long
+                            </div>
+                            <div id="passwordError" class="error-message" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password *</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                            <div id="confirmPasswordError" class="error-message" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -418,7 +484,6 @@
                     <div class="plans-grid">
                         <!-- Connect Plan -->
                         <div class="plan-card" data-plan="connect" onclick="selectPlan('connect')">
-                            <div class="plan-badge">Most Popular</div>
                             <input type="radio" name="plan" value="connect" class="radio-input" id="plan-connect" checked>
                             
                             <div class="plan-header">
@@ -496,9 +561,15 @@
                     </a>
                     
                     <button type="submit" class="btn btn-primary" id="continueBtn">
-                        <span id="continueText">Start Your Journey</span>
+                        <span id="continueText">Create Account</span>
                         <span id="continueLoading" class="loading" style="display: none;"></span>
                     </button>
+                </div>
+
+                <!-- Login Link for Existing Users -->
+                <div class="login-link">
+                    <p>Already have an account?</p>
+                    <a href="login.html" class="btn btn-link">Log in here</a>
                 </div>
 
                 <div class="privacy-note">
@@ -573,26 +644,112 @@
             summaryEl.classList.add('show');
         }
 
+        // Password validation
+        function validatePassword(password) {
+            return password.length >= 8;
+        }
+
+        function updatePasswordRequirements() {
+            const password = document.getElementById('password').value;
+            const requirements = document.getElementById('passwordRequirements');
+            
+            if (validatePassword(password)) {
+                requirements.textContent = '✓ Password meets requirements';
+                requirements.classList.add('valid');
+            } else {
+                requirements.textContent = 'Password must be at least 8 characters long';
+                requirements.classList.remove('valid');
+            }
+        }
+
+        // Real-time validation
+        document.getElementById('password').addEventListener('input', updatePasswordRequirements);
+
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const errorEl = document.getElementById('confirmPasswordError');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.classList.add('error');
+                errorEl.textContent = 'Passwords do not match';
+                errorEl.style.display = 'block';
+            } else {
+                this.classList.remove('error');
+                errorEl.style.display = 'none';
+            }
+        });
+
+        // Check if email already exists
+        async function checkEmailExists(email) {
+            // Check localStorage for existing accounts
+            const existingAccounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+            return existingAccounts.hasOwnProperty(email);
+        }
+
         // Form submission
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value.trim();
             const name = document.getElementById('name').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            
+            let hasErrors = false;
             
             // Validation
-            if (!email || !name) {
+            if (!email || !name || !password || !confirmPassword) {
                 alert('Please fill in all required fields.');
                 return;
             }
             
             if (!isValidEmail(email)) {
-                alert('Please enter a valid email address.');
-                return;
+                document.getElementById('email').classList.add('error');
+                document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                document.getElementById('emailError').style.display = 'block';
+                hasErrors = true;
             }
+            
+            // Check if email already exists
+            if (await checkEmailExists(email)) {
+                document.getElementById('email').classList.add('error');
+                document.getElementById('emailError').textContent = 'This email is already registered. Please log in instead.';
+                document.getElementById('emailError').style.display = 'block';
+                hasErrors = true;
+            }
+            
+            if (!validatePassword(password)) {
+                document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long';
+                document.getElementById('passwordError').style.display = 'block';
+                hasErrors = true;
+            }
+            
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPassword').classList.add('error');
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                document.getElementById('confirmPasswordError').style.display = 'block';
+                hasErrors = true;
+            }
+            
+            if (hasErrors) return;
             
             // Start loading
             setLoadingState(true);
+            
+            // Create account data
+            const accountData = {
+                email: email,
+                name: name,
+                password: btoa(password), // Simple base64 encoding (in production, use proper hashing)
+                plan: selectedPlan,
+                createdAt: new Date().toISOString()
+            };
             
             // Create user data with new plan structure
             const userData = {
@@ -614,7 +771,19 @@
                 createdAt: new Date().toISOString()
             };
             
-            // Store user data locally
+            // Store account credentials
+            const existingAccounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+            existingAccounts[email] = accountData;
+            localStorage.setItem('kinly_accounts', JSON.stringify(existingAccounts));
+            
+            // Store user session
+            localStorage.setItem('kinly_user', JSON.stringify({
+                email: email,
+                name: name,
+                loginTime: new Date().toISOString()
+            }));
+            
+            // Store user data
             localStorage.setItem('kinly_user_data', JSON.stringify(userData));
             
             // Track signup
@@ -628,8 +797,8 @@
             // Simulate processing time
             setTimeout(() => {
                 if (selectedPlan === 'connect') {
-                    // Redirect to app for free plan
-                    window.location.href = 'app.html?welcome=true';
+                    // Redirect directly to chat for free plan
+                    window.location.href = 'app.html?chat=true';
                 } else {
                     // Redirect to payment for paid plans
                     window.location.href = `payment.html?plan=${selectedPlan}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`;
