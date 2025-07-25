@@ -498,7 +498,7 @@
             gap: 10px;
             z-index: 1000;
             font-size: 1rem;
-            display: flex;
+            display: none; /* Hidden by default, shown by JavaScript */
             animation: installBounce 3s infinite;
         }
 
@@ -517,10 +517,6 @@
             60% {
                 transform: translateY(-3px);
             }
-        }
-
-        .install-pwa.hidden {
-            display: none;
         }
         @media (max-width: 768px) {
             .container {
@@ -931,14 +927,23 @@
         let deferredPrompt;
         const installBtn = document.getElementById('installPwaBtn');
 
-        // Show install button by default for testing, hide if not installable
+        // Show install button by default, but customize for each platform
         window.addEventListener('load', () => {
-            // Show button for 10 seconds to test visibility
-            setTimeout(() => {
-                if (!deferredPrompt) {
-                    installBtn.classList.add('hidden');
-                }
-            }, 10000);
+            // Detect platform and show appropriate instructions
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                // iOS doesn't support beforeinstallprompt, so show manual instructions
+                installBtn.innerHTML = '📱 Install App';
+                installBtn.style.display = 'flex';
+            } else if (isAndroid) {
+                // Android will show install prompt when available
+                installBtn.innerHTML = '📱 Install App';
+            } else {
+                // Desktop
+                installBtn.innerHTML = '💻 Install App';
+            }
         });
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -947,33 +952,66 @@
             // Save the event so it can be triggered later
             deferredPrompt = e;
             // Make sure the install button is visible
-            installBtn.classList.remove('hidden');
+            installBtn.style.display = 'flex';
             console.log('PWA install prompt available');
         });
 
         installBtn.addEventListener('click', async () => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
             if (deferredPrompt) {
-                // Show the install prompt
+                // Show the install prompt (Android/Desktop)
                 deferredPrompt.prompt();
                 // Wait for the user to respond to the prompt
                 const { outcome } = await deferredPrompt.userChoice;
                 console.log(`User ${outcome} the install prompt`);
                 // Clear the saved prompt since it can't be used again
                 deferredPrompt = null;
-                // Hide the install button
-                installBtn.classList.add('hidden');
+                // Hide the install button if they accepted
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+            } else if (isIOS) {
+                // iOS-specific instructions
+                alert(`To install Kinly on your iPhone:
+
+1. Tap the Share button (⬆️) at the bottom of Safari
+2. Scroll down and tap "Add to Home Screen"
+3. Tap "Add" in the top right corner
+
+This will add Kinly to your home screen like a native app!`);
+            } else if (isAndroid) {
+                // Android fallback if prompt isn't available
+                alert(`To install Kinly on Android:
+
+1. Tap the menu button (⋮) in your browser
+2. Look for "Install app" or "Add to Home screen"
+3. Tap it and confirm
+
+Alternatively, you can bookmark this page for quick access!`);
             } else {
-                // Fallback for when prompt isn't available
-                alert('To install this app:\n\n• On iPhone: Tap Share → Add to Home Screen\n• On Android: Tap ⋮ → Install App\n• On Desktop: Look for install icon in address bar');
+                // Desktop fallback
+                alert(`To install Kinly on desktop:
+
+1. Look for an install icon (⬇️) in your browser's address bar
+2. Click it and select "Install"
+
+Or bookmark this page for easy access!`);
             }
         });
 
         // Hide install button if app is already installed
         window.addEventListener('appinstalled', () => {
-            installBtn.classList.add('hidden');
+            installBtn.style.display = 'none';
             deferredPrompt = null;
             console.log('PWA was installed');
         });
+
+        // Also hide the button if running in standalone mode (already installed)
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'none';
+        }
     </script>
     
     <!-- 100% privacy-first analytics -->
