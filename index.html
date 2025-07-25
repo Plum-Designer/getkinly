@@ -804,7 +804,7 @@
     </footer>
 
     <!-- PWA Install Button -->
-    <button id="installPwaBtn" class="install-pwa">
+    <button id="installPwaBtn" class="install-pwa" onclick="showInstallInstructions()">
         📱 Install App
     </button>
 
@@ -862,3 +862,233 @@
                         }, 2000);
                     } else {
                         // Restart after delay
+                        setTimeout(() => {
+                            playMessageSequence();
+                        }, 5000);
+                    }
+                }
+            }
+            
+            showTypingIndicator();
+            setTimeout(showNextMessage, 1000);
+        }
+
+        // Floating Background Messages
+        const backgroundMessages = [
+            "Looking for hiking trails near me",
+            "Any good coffee shops around here?",
+            "I love the pottery class suggestion! 🎨",
+            "Want to try rock climbing this weekend",
+            "Found an amazing art gallery today",
+            "Just joined a book club meeting!",
+            "Perfect weather for a picnic 🌞",
+            "Discovered a new farmers market",
+            "Ready for some outdoor yoga",
+            "Weekend adventure planning time!"
+        ];
+
+        function createFloatingMessage() {
+            const message = document.createElement('div');
+            message.className = Math.random() > 0.5 ? 'floating-message user' : 'floating-message ai';
+            message.textContent = backgroundMessages[Math.floor(Math.random() * backgroundMessages.length)];
+            
+            // Random positioning
+            message.style.left = Math.random() * 100 + '%';
+            message.style.animationDuration = (12 + Math.random() * 8) + 's';
+            message.style.animationDelay = Math.random() * 2 + 's';
+            
+            document.getElementById('chatBackground').appendChild(message);
+            
+            // Remove after animation
+            setTimeout(() => {
+                message.remove();
+            }, 20000);
+        }
+
+        // Function to smoothly scroll to sections on the page
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Simple, reliable install function
+        function showInstallInstructions() {
+            console.log('Install button clicked - working!');
+            
+            // Detect platform
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            // Remove any existing modal
+            const existingModal = document.querySelector('.install-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'install-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 99999;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 350px;
+                width: 100%;
+                color: #333;
+                text-align: center;
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            `;
+            
+            if (isIOS) {
+                content.innerHTML = `
+                    <h3 style="color: #84cc16; margin-bottom: 20px; font-size: 1.3rem;">Install Kinly</h3>
+                    <div style="text-align: left; line-height: 1.6; margin-bottom: 25px;">
+                        <p style="margin-bottom: 12px;"><strong>Step 1:</strong> Tap the Share button (⬆️) at the bottom of your browser</p>
+                        <p style="margin-bottom: 12px;"><strong>Step 2:</strong> Scroll down and tap "Add to Home Screen"</p>
+                        <p style="margin-bottom: 12px;"><strong>Step 3:</strong> Tap "Add" to install</p>
+                    </div>
+                    <button onclick="this.closest('.install-modal').remove()" style="
+                        background: #84cc16;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 16px;
+                        width: 100%;
+                    ">Got it!</button>
+                `;
+            } else if (isAndroid) {
+                content.innerHTML = `
+                    <h3 style="color: #84cc16; margin-bottom: 20px; font-size: 1.3rem;">Install Kinly</h3>
+                    <div style="text-align: left; line-height: 1.6; margin-bottom: 25px;">
+                        <p style="margin-bottom: 12px;"><strong>Option 1:</strong> Look for "Install app" notification at the top</p>
+                        <p style="margin-bottom: 12px;"><strong>Option 2:</strong> Tap menu (⋮) then "Add to Home screen"</p>
+                    </div>
+                    <button onclick="this.closest('.install-modal').remove()" style="
+                        background: #84cc16;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 16px;
+                        width: 100%;
+                    ">Got it!</button>
+                `;
+            } else {
+                content.innerHTML = `
+                    <h3 style="color: #84cc16; margin-bottom: 20px; font-size: 1.3rem;">Install Kinly</h3>
+                    <div style="text-align: left; line-height: 1.6; margin-bottom: 25px;">
+                        <p style="margin-bottom: 12px;"><strong>Step 1:</strong> Look for install icon in your browser's address bar</p>
+                        <p style="margin-bottom: 12px;"><strong>Step 2:</strong> Click it and select "Install"</p>
+                    </div>
+                    <button onclick="this.closest('.install-modal').remove()" style="
+                        background: #84cc16;
+                        color: white;
+                        border: none;
+                        padding: 15px 30px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 16px;
+                        width: 100%;
+                    ">Got it!</button>
+                `;
+            }
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Close when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded - initializing Kinly homepage');
+            
+            // Test install button visibility
+            const installBtn = document.getElementById('installPwaBtn');
+            if (installBtn) {
+                console.log('Install button found and ready');
+                // Flash test - button will briefly turn red to confirm it's working
+                setTimeout(() => {
+                    installBtn.style.background = 'red';
+                    setTimeout(() => {
+                        installBtn.style.background = 'linear-gradient(45deg, #84cc16, #65a30d)';
+                    }, 500);
+                }, 1000);
+            } else {
+                console.error('Install button not found!');
+            }
+            
+            // Add hover effects for footer links
+            const footerLinks = document.querySelectorAll('footer a');
+            footerLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    if (this.style.color === 'rgba(255, 255, 255, 0.8)') {
+                        this.style.color = '#84cc16';
+                    }
+                });
+                link.addEventListener('mouseleave', function() {
+                    if (this.style.color === 'rgb(132, 204, 22)') {
+                        this.style.color = 'rgba(255, 255, 255, 0.8)';
+                    }
+                });
+            });
+
+            // Start chat demo
+            setTimeout(playMessageSequence, 1000);
+            
+            // Create floating messages
+            setInterval(createFloatingMessage, 3000);
+            
+            // Create initial floating messages
+            for (let i = 0; i < 5; i++) {
+                setTimeout(createFloatingMessage, i * 1000);
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <!-- 100% privacy-first analytics -->
+    <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+</body>
+</html>/
