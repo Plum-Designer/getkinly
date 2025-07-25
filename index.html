@@ -503,11 +503,19 @@
             opacity: 0;
             transform: translateY(100px);
             animation: slideUp 0.5s ease-out 2s forwards, installBounce 3s infinite 3s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .install-pwa:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(132, 204, 22, 0.5);
+        }
+
+        .install-pwa:active {
+            transform: translateY(-1px) scale(0.95);
         }
 
         @keyframes slideUp {
