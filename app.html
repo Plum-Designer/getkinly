@@ -836,7 +836,7 @@
             }, duration);
         }
 
-        // Improved authentication that gets preferred name from signup
+        // Improved authentication that doesn't redirect immediately
         function checkAuthentication() {
             console.log('Checking authentication...');
             
@@ -845,8 +845,9 @@
             
             console.log('User data found:', !!user, !!userData);
             
+            // Don't redirect immediately - let them try to login
             if (!user && !userData) {
-                console.log('No authentication data found');
+                console.log('No authentication data found - showing login required');
                 return false;
             }
             
@@ -885,6 +886,7 @@
                 
             } catch (error) {
                 console.error('Error parsing user data:', error);
+                return false;
             }
             
             return true;
