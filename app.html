@@ -135,7 +135,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             min-height: 80vh;
             height: auto;
-            display: flex;
+            display: none;
             flex-direction: column;
         }
 
@@ -394,6 +394,34 @@
             text-overflow: ellipsis;
         }
 
+        .chat-input::placeholder {
+            color: var(--gray-400);
+            opacity: 1;
+        }
+
+        /* Login form input styling */
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        .login-input::placeholder {
+            color: rgba(255,255,255,0.7);
+            opacity: 1;
+        }
+
+        .login-input:focus {
+            border-color: rgba(255,255,255,0.6);
+            outline: none;
+        }
+
         .chat-input:focus {
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -547,8 +575,8 @@
                 
                 <!-- Quick Login Form -->
                 <div style="margin-bottom: 20px;">
-                    <input type="email" id="loginEmail" placeholder="Email" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; margin-bottom: 10px; font-size: 16px;" />
-                    <input type="password" id="loginPassword" placeholder="Password" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; margin-bottom: 15px; font-size: 16px;" />
+                    <input type="email" id="loginEmail" placeholder="Email" class="login-input" />
+                    <input type="password" id="loginPassword" placeholder="Password" class="login-input" />
                     <button onclick="handleQuickLogin()" class="btn" style="width: 100%; margin: 0;">
                         Log In
                     </button>
@@ -668,6 +696,13 @@
                 } catch (e) {
                     console.error('Error saving user data:', e);
                 }
+            }
+
+            setPreferredName(preferredName) {
+                this.userData.name = preferredName;
+                this.userData.hasSetPreferredName = true;
+                this.saveUserData();
+                console.log('Updated preferred name to:', preferredName);
             }
 
             setPreferredName(preferredName) {
@@ -888,7 +923,7 @@
             }, duration);
         }
 
-        // Quick login function
+        // Quick login function with better error handling
         function handleQuickLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
@@ -898,38 +933,58 @@
                 return;
             }
             
-            // For now, simulate login (replace with real authentication later)
-            console.log('Attempting login for:', email);
+            if (!email.includes('@')) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
             
-            // Create fake user data for testing
-            const userData = {
-                email: email,
-                name: email.split('@')[0], // Use email username as name
-                preferredName: email.split('@')[0],
-                loginTime: new Date().toISOString()
-            };
-            
-            // Store login data
-            localStorage.setItem('kinly_user', JSON.stringify(userData));
-            
-            // Update usage manager
-            usageManager.userData.name = userData.preferredName;
-            usageManager.userData.actualName = userData.name;
-            usageManager.userData.email = userData.email;
-            usageManager.userData.hasSetPreferredName = true;
-            usageManager.saveUserData();
-            
-            showNotification('Login successful!', 'success');
-            
-            // Hide login screen and show chat
-            document.getElementById('loginRequiredScreen').style.display = 'none';
-            document.getElementById('chat').style.display = 'flex';
-            
-            // Add welcome message
-            const welcomeMessage = `Hey ${userData.preferredName}! Welcome back! How's your day going?`;
-            addMessage('ai', welcomeMessage);
-            
-            console.log('User logged in successfully:', userData);
+            try {
+                // For now, simulate login (replace with real authentication later)
+                console.log('Attempting login for:', email);
+                
+                // Create fake user data for testing
+                const userData = {
+                    email: email,
+                    name: email.split('@')[0], // Use email username as name
+                    preferredName: email.split('@')[0],
+                    loginTime: new Date().toISOString()
+                };
+                
+                // Store login data with error handling
+                try {
+                    localStorage.setItem('kinly_user', JSON.stringify(userData));
+                } catch (storageError) {
+                    console.error('Storage error:', storageError);
+                    showNotification('Login failed. Please try again.', 'error');
+                    return;
+                }
+                
+                // Update usage manager
+                usageManager.userData.name = userData.preferredName;
+                usageManager.userData.actualName = userData.name;
+                usageManager.userData.email = userData.email;
+                usageManager.userData.hasSetPreferredName = true;
+                usageManager.saveUserData();
+                
+                showNotification('Login successful!', 'success');
+                
+                // Hide login screen and show chat
+                document.getElementById('loginRequiredScreen').style.display = 'none';
+                document.getElementById('chat').style.display = 'flex';
+                
+                // Clear any existing messages
+                document.getElementById('chatMessages').innerHTML = '';
+                
+                // Add welcome message
+                const welcomeMessage = `Hey ${userData.preferredName}! Welcome back! How's your day going?`;
+                addMessage('ai', welcomeMessage);
+                
+                console.log('User logged in successfully:', userData);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('Login failed. Please try again.', 'error');
+            }
         }
 
         // Improved authentication that doesn't redirect immediately
