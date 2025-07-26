@@ -386,6 +386,12 @@
             font-size: 16px;
             transition: border-color 0.3s ease;
             min-height: 44px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+            line-height: 1.4;
+            resize: none;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         .chat-input:focus {
@@ -718,7 +724,7 @@
             messages.push({ sender, content, timestamp: new Date() });
         }
 
-        // Enhanced message handling with name detection
+        // Enhanced message handling with better responses
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -748,37 +754,80 @@
                 }
             }
             
-            // AI response
+            // AI response with better logic
             setTimeout(() => {
                 let response;
+                const userName = usageManager.userData.name;
                 
                 if (detectedName) {
                     // User is setting their preferred name
                     usageManager.setPreferredName(detectedName);
                     response = `Perfect! I'll call you ${detectedName} from now on. Nice to meet you, ${detectedName}! What brings you here today?`;
-                } else if (!usageManager.userData.hasSetPreferredName && usageManager.userData.name === 'Friend') {
-                    // Ask for preferred name if they haven't set one
-                    const askNameResponses = [
-                        "I'd love to get to know you better! What should I call you?",
-                        "By the way, what would you like me to call you? I want to make sure I address you how you prefer!",
-                        "Before we continue, what name would you like me to use for you?"
-                    ];
-                    response = askNameResponses[Math.floor(Math.random() * askNameResponses.length)];
                 } else {
-                    // Regular responses using their preferred name
-                    const userName = usageManager.userData.name;
-                    const responses = [
-                        `That's interesting, ${userName}! Tell me more about that.`,
-                        `I hear you, ${userName}! What's been on your mind lately?`,
-                        `That sounds cool, ${userName}! Have you thought about exploring that locally?`,
-                        `Nice, ${userName}! Want to find some activities related to that in your area?`,
-                        `I love that perspective, ${userName}! What would you like to do about it?`
-                    ];
-                    response = responses[Math.floor(Math.random() * responses.length)];
+                    // Respond based on what they actually said
+                    response = generateContextualResponse(message, userName);
                 }
                 
                 addMessage('ai', response);
             }, 1000);
+        }
+
+        // Better contextual responses based on user input
+        function generateContextualResponse(userMessage, userName) {
+            const msg = userMessage.toLowerCase();
+            
+            // Greeting responses
+            if (msg.includes('hi') || msg.includes('hello') || msg.includes('hey')) {
+                const greetings = [
+                    `Hey ${userName}! Great to see you. What's been going on?`,
+                    `Hi ${userName}! How are you doing today?`,
+                    `Hello ${userName}! What's on your mind?`
+                ];
+                return greetings[Math.floor(Math.random() * greetings.length)];
+            }
+            
+            // Confused responses
+            if (msg.includes('huh') || msg.includes('what') || msg === '?') {
+                const clarifications = [
+                    `Sorry ${userName}, let me be clearer! I'm here to chat and help you discover fun things to do. What would you like to talk about?`,
+                    `My bad ${userName}! I'm Kinly, your AI friend. I love helping people find cool local activities. What's going on today?`,
+                    `Let me start over, ${userName}! I'm here to chat and maybe help you find something fun to do. How's your day going?`
+                ];
+                return clarifications[Math.floor(Math.random() * clarifications.length)];
+            }
+            
+            // Activity/location requests
+            if (msg.includes('find') || msg.includes('look for') || msg.includes('recommend') || 
+                msg.includes('restaurant') || msg.includes('coffee') || msg.includes('activity')) {
+                return `I'd love to help you find something cool, ${userName}! What kind of activity are you in the mood for? Food, outdoor adventures, cultural stuff?`;
+            }
+            
+            // Boredom
+            if (msg.includes('bored') || msg.includes('nothing to do')) {
+                return `${userName}, let's fix that boredom! What usually gets you excited? Indoor activities, outdoor adventures, meeting people, or discovering new places?`;
+            }
+            
+            // Short responses
+            if (msg.length < 10) {
+                const shortResponses = [
+                    `Tell me more about that, ${userName}!`,
+                    `Interesting! What's making you think about that, ${userName}?`,
+                    `I'd love to hear more, ${userName}. What's going on?`,
+                    `That's cool, ${userName}! Want to explore that idea together?`
+                ];
+                return shortResponses[Math.floor(Math.random() * shortResponses.length)];
+            }
+            
+            // Default responses for longer messages
+            const thoughtfulResponses = [
+                `That's really interesting, ${userName}! Tell me more about what you're thinking.`,
+                `I hear you, ${userName}. What would you like to explore about that?`,
+                `That sounds like something worth discussing, ${userName}! What's your take on it?`,
+                `Thanks for sharing that, ${userName}. How does that make you feel?`,
+                `I love that perspective, ${userName}! Have you thought about exploring that locally?`
+            ];
+            
+            return thoughtfulResponses[Math.floor(Math.random() * thoughtfulResponses.length)];
         }
 
         function handleKeyPress(event) {
