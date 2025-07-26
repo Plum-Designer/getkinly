@@ -537,9 +537,19 @@
             
             <div class="login-card">
                 <h3>Ready to start chatting?</h3>
-                <p style="margin-bottom: 30px; opacity: 0.9;">Choose your plan and create your account to begin your journey with Kinly.</p>
+                <p style="margin-bottom: 30px; opacity: 0.9;">Log in to continue your journey with Kinly.</p>
+                
+                <!-- Quick Login Form -->
+                <div style="margin-bottom: 20px;">
+                    <input type="email" id="loginEmail" placeholder="Email" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; margin-bottom: 10px; font-size: 16px;" />
+                    <input type="password" id="loginPassword" placeholder="Password" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.1); color: white; margin-bottom: 15px; font-size: 16px;" />
+                    <button onclick="handleQuickLogin()" class="btn" style="width: 100%; margin: 0;">
+                        Log In
+                    </button>
+                </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <p style="text-align: center; font-size: 0.9rem; opacity: 0.8;">Don't have an account?</p>
                     <a href="signup.html" class="btn">
                         Get Started - View Plans
                     </a>
@@ -547,13 +557,6 @@
                     <div style="margin-top: 20px;">
                         <a href="index.html" class="btn btn-secondary">← Back to Home</a>
                     </div>
-                </div>
-                
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-                    <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px;">Already have an account?</p>
-                    <a href="login.html" class="btn btn-secondary" style="width: 100%; text-align: center;">
-                        Log In Here
-                    </a>
                 </div>
             </div>
         </div>
@@ -836,6 +839,50 @@
             }, duration);
         }
 
+        // Quick login function
+        function handleQuickLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!email || !password) {
+                showNotification('Please enter both email and password', 'error');
+                return;
+            }
+            
+            // For now, simulate login (replace with real authentication later)
+            console.log('Attempting login for:', email);
+            
+            // Create fake user data for testing
+            const userData = {
+                email: email,
+                name: email.split('@')[0], // Use email username as name
+                preferredName: email.split('@')[0],
+                loginTime: new Date().toISOString()
+            };
+            
+            // Store login data
+            localStorage.setItem('kinly_user', JSON.stringify(userData));
+            
+            // Update usage manager
+            usageManager.userData.name = userData.preferredName;
+            usageManager.userData.actualName = userData.name;
+            usageManager.userData.email = userData.email;
+            usageManager.userData.hasSetPreferredName = true;
+            usageManager.saveUserData();
+            
+            showNotification('Login successful!', 'success');
+            
+            // Hide login screen and show chat
+            document.getElementById('loginRequiredScreen').style.display = 'none';
+            document.getElementById('chat').style.display = 'flex';
+            
+            // Add welcome message
+            const welcomeMessage = `Hey ${userData.preferredName}! Welcome back! How's your day going?`;
+            addMessage('ai', welcomeMessage);
+            
+            console.log('User logged in successfully:', userData);
+        }
+
         // Improved authentication that doesn't redirect immediately
         function checkAuthentication() {
             console.log('Checking authentication...');
@@ -952,6 +999,18 @@
         });
 
         console.log('JavaScript loaded successfully');
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful: ', registration.scope);
+                    }, function(error) {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
