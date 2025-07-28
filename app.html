@@ -399,29 +399,6 @@
             opacity: 1;
         }
 
-        /* Login form input styling */
-        .login-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            margin-bottom: 10px;
-            font-size: 16px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
-        }
-
-        .login-input::placeholder {
-            color: rgba(255,255,255,0.7);
-            opacity: 1;
-        }
-
-        .login-input:focus {
-            border-color: rgba(255,255,255,0.6);
-            outline: none;
-        }
-
         .chat-input:focus {
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -571,20 +548,15 @@
             
             <div class="login-card">
                 <h3>Ready to start chatting?</h3>
-                <p style="margin-bottom: 30px; opacity: 0.9;">Log in to continue your journey with Kinly.</p>
-                
-                <!-- Quick Login Form -->
-                <div style="margin-bottom: 20px;">
-                    <input type="email" id="loginEmail" placeholder="Email" class="login-input" />
-                    <input type="password" id="loginPassword" placeholder="Password" class="login-input" />
-                    <button onclick="handleQuickLogin()" class="btn" style="width: 100%; margin: 0;">
-                        Log In
-                    </button>
-                </div>
+                <p style="margin-bottom: 30px; opacity: 0.9;">You need to be logged in to chat with Kinly.</p>
                 
                 <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <a href="login.html" class="btn">
+                        Log In to Your Account
+                    </a>
+                    
                     <p style="text-align: center; font-size: 0.9rem; opacity: 0.8;">Don't have an account?</p>
-                    <a href="signup.html" class="btn">
+                    <a href="signup.html" class="btn btn-secondary">
                         Get Started - View Plans
                     </a>
                     
@@ -596,7 +568,7 @@
         </div>
 
         <!-- Chat Interface -->
-        <div id="chat" class="chat-container" style="display: flex;">
+        <div id="chat" class="chat-container" style="display: none;">
             <!-- Sidebar (hidden on mobile by CSS) -->
             <div class="chat-sidebar">
                 <div class="sidebar-header">
@@ -623,7 +595,7 @@
                     </div>
                     <div class="user-info">
                         <div class="usage-display" id="headerUsage">
-                            15 messages • 1 search remaining
+                            35 messages • 1 search remaining
                         </div>
                         <button class="btn btn-secondary" onclick="showAccountModal()">
                             Account
@@ -654,7 +626,7 @@
         let messages = [];
         let conversationHistory = [];
 
-        // Simple Usage Manager with preferred name support
+        // Enhanced Usage Manager with new pricing structure
         class UsageManager {
             constructor() {
                 this.userData = this.loadUserData();
@@ -671,23 +643,32 @@
                     }
                 }
                 
+                // Default to new pricing structure
                 return {
-                    name: 'Friend', // This will be the preferred name
-                    actualName: null, // Their real/login name
+                    name: 'Friend',
                     email: null,
                     plan: 'connect',
                     planDetails: {
-                        messagesPerDay: 15,
-                        monthlySearches: 1
+                        messagesPerDay: 35,
+                        monthlySearches: 1,
+                        humanChats: 0
                     },
                     dailyUsage: {
                         messagesUsed: 0,
                         date: new Date().toDateString()
                     },
                     monthlySearchesUsed: 0,
+                    monthlyHumanChatsUsed: 0,
+                    monthlyResetDate: this.getNextMonthlyReset(),
                     createdAt: new Date().toISOString(),
-                    hasSetPreferredName: false // Track if user has set their preferred name
+                    hasSetPreferredName: false
                 };
+            }
+
+            getNextMonthlyReset() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                return nextMonth.getTime();
             }
 
             saveUserData() {
@@ -698,36 +679,47 @@
                 }
             }
 
-            setPreferredName(preferredName) {
-                this.userData.name = preferredName;
-                this.userData.hasSetPreferredName = true;
-                this.saveUserData();
-                console.log('Updated preferred name to:', preferredName);
-            }
-
-            setPreferredName(preferredName) {
-                this.userData.name = preferredName;
-                this.userData.hasSetPreferredName = true;
-                this.saveUserData();
-                console.log('Updated preferred name to:', preferredName);
-            }
-
             updateUI() {
-                const messagesRemaining = 15 - this.userData.dailyUsage.messagesUsed;
-                const searchesRemaining = 1 - this.userData.monthlySearchesUsed;
+                const plan = this.userData.planDetails;
+                const messagesRemaining = plan.messagesPerDay - this.userData.dailyUsage.messagesUsed;
+                const searchesRemaining = plan.monthlySearches - this.userData.monthlySearchesUsed;
                 
-                const usageText = `${messagesRemaining} messages • ${searchesRemaining} search remaining`;
+                let usageText = `${messagesRemaining} messages • ${searchesRemaining} search remaining`;
+                
+                // Add human chats for Explorer plan
+                if (plan.humanChats > 0) {
+                    const humanChatsRemaining = plan.humanChats - (this.userData.monthlyHumanChatsUsed || 0);
+                    usageText += ` • ${humanChatsRemaining} human chats`;
+                }
+                
                 const headerUsage = document.getElementById('headerUsage');
                 if (headerUsage) {
                     headerUsage.textContent = usageText;
                 }
+
+                // Update plan display
+                const planDisplay = document.getElementById('planDisplay');
+                if (planDisplay) {
+                    const planNames = {
+                        connect: 'Connect Plan',
+                        community: 'Community Plan', 
+                        explorer: 'Explorer Plan'
+                    };
+                    planDisplay.textContent = planNames[this.userData.plan] || 'Connect Plan';
+                }
+            }
+
+            useMessage() {
+                this.userData.dailyUsage.messagesUsed++;
+                this.saveUserData();
+                this.updateUI();
             }
         }
 
         // Initialize usage manager
-        const usageManager = new UsageManager();
+        let usageManager;
 
-        // Simple message functions
+        // Enhanced message functions
         function addMessage(sender, content) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
@@ -759,15 +751,25 @@
             messages.push({ sender, content, timestamp: new Date() });
         }
 
-        // Enhanced message handling with better responses
+        // Enhanced message handling with usage tracking
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             
             if (!message) return;
 
+            // Check message limits
+            const plan = usageManager.userData.planDetails;
+            if (usageManager.userData.dailyUsage.messagesUsed >= plan.messagesPerDay) {
+                showNotification('You\'ve reached your daily message limit. Upgrade your plan for more messages!', 'error');
+                return;
+            }
+
             addMessage('user', message);
             input.value = '';
+            
+            // Use a message
+            usageManager.useMessage();
             
             // Check if user is setting their preferred name
             const lowerMessage = message.toLowerCase();
@@ -796,7 +798,9 @@
                 
                 if (detectedName) {
                     // User is setting their preferred name
-                    usageManager.setPreferredName(detectedName);
+                    usageManager.userData.name = detectedName;
+                    usageManager.userData.hasSetPreferredName = true;
+                    usageManager.saveUserData();
                     response = `Perfect! I'll call you ${detectedName} from now on. Nice to meet you, ${detectedName}! What brings you here today?`;
                 } else {
                     // Respond based on what they actually said
@@ -819,16 +823,6 @@
                     `Hello ${userName}! What's on your mind?`
                 ];
                 return greetings[Math.floor(Math.random() * greetings.length)];
-            }
-            
-            // Confused responses
-            if (msg.includes('huh') || msg.includes('what') || msg === '?') {
-                const clarifications = [
-                    `Sorry ${userName}, let me be clearer! I'm here to chat and help you discover fun things to do. What would you like to talk about?`,
-                    `My bad ${userName}! I'm Kinly, your AI friend. I love helping people find cool local activities. What's going on today?`,
-                    `Let me start over, ${userName}! I'm here to chat and maybe help you find something fun to do. How's your day going?`
-                ];
-                return clarifications[Math.floor(Math.random() * clarifications.length)];
             }
             
             // Activity/location requests
@@ -881,13 +875,23 @@
 
         function showAccountModal() {
             const userData = usageManager.userData;
+            const plan = userData.planDetails;
+            
+            let planFeatures = `${plan.messagesPerDay} messages/day, ${plan.monthlySearches} searches/month`;
+            if (plan.humanChats > 0) {
+                planFeatures += `, ${plan.humanChats} human chats/month`;
+            }
+            
             const modalContent = `
                 <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;">
                     <div style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; color: #1f2937;">
                         <h3 style="margin-bottom: 20px; color: #3b82f6;">Account Details</h3>
                         <p><strong>Name:</strong> ${userData.name}</p>
-                        <p><strong>Plan:</strong> Connect Plan</p>
-                        <p><strong>Daily Messages:</strong> ${userData.dailyUsage.messagesUsed} / 15</p>
+                        <p><strong>Plan:</strong> ${userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1)} Plan</p>
+                        <p><strong>Features:</strong> ${planFeatures}</p>
+                        <p><strong>Messages Used Today:</strong> ${userData.dailyUsage.messagesUsed} / ${plan.messagesPerDay}</p>
+                        <p><strong>Monthly Searches Used:</strong> ${userData.monthlySearchesUsed} / ${plan.monthlySearches}</p>
+                        ${plan.humanChats > 0 ? `<p><strong>Human Chats Used:</strong> ${userData.monthlyHumanChatsUsed || 0} / ${plan.humanChats}</p>` : ''}
                         <div style="margin-top: 20px;">
                             <button onclick="this.closest('div').remove()" style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer;">Close</button>
                         </div>
@@ -901,7 +905,6 @@
         function logout() {
             if (confirm('Are you sure you want to log out?')) {
                 localStorage.removeItem('kinly_user');
-                localStorage.removeItem('kinly_user_data');
                 showNotification('Logged out successfully', 'info');
                 setTimeout(() => {
                     window.location.href = 'login.html';
@@ -923,124 +926,36 @@
             }, duration);
         }
 
-        // Quick login function with better error handling
-        function handleQuickLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            
-            if (!email || !password) {
-                showNotification('Please enter both email and password', 'error');
-                return;
-            }
-            
-            if (!email.includes('@')) {
-                showNotification('Please enter a valid email address', 'error');
-                return;
-            }
-            
-            try {
-                // For now, simulate login (replace with real authentication later)
-                console.log('Attempting login for:', email);
-                
-                // Create fake user data for testing
-                const userData = {
-                    email: email,
-                    name: email.split('@')[0], // Use email username as name
-                    preferredName: email.split('@')[0],
-                    loginTime: new Date().toISOString()
-                };
-                
-                // Store login data with error handling
-                try {
-                    localStorage.setItem('kinly_user', JSON.stringify(userData));
-                } catch (storageError) {
-                    console.error('Storage error:', storageError);
-                    showNotification('Login failed. Please try again.', 'error');
-                    return;
-                }
-                
-                // Update usage manager
-                usageManager.userData.name = userData.preferredName;
-                usageManager.userData.actualName = userData.name;
-                usageManager.userData.email = userData.email;
-                usageManager.userData.hasSetPreferredName = true;
-                usageManager.saveUserData();
-                
-                showNotification('Login successful!', 'success');
-                
-                // Hide login screen and show chat
-                document.getElementById('loginRequiredScreen').style.display = 'none';
-                document.getElementById('chat').style.display = 'flex';
-                
-                // Clear any existing messages
-                document.getElementById('chatMessages').innerHTML = '';
-                
-                // Add welcome message
-                const welcomeMessage = `Hey ${userData.preferredName}! Welcome back! How's your day going?`;
-                addMessage('ai', welcomeMessage);
-                
-                console.log('User logged in successfully:', userData);
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                showNotification('Login failed. Please try again.', 'error');
-            }
-        }
-
-        // Improved authentication that doesn't redirect immediately
+        // Proper authentication check
         function checkAuthentication() {
             console.log('Checking authentication...');
             
-            const user = localStorage.getItem('kinly_user');
-            const userData = localStorage.getItem('kinly_user_data');
+            const userSession = localStorage.getItem('kinly_user');
             
-            console.log('User data found:', !!user, !!userData);
-            
-            // Don't redirect immediately - let them try to login
-            if (!user && !userData) {
-                console.log('No authentication data found - showing login required');
+            if (!userSession) {
+                console.log('No user session found');
                 return false;
             }
-            
-            // Get the user's preferred name and actual name from signup/login data
-            let actualName = null;
-            let preferredName = null;
             
             try {
-                if (user) {
-                    const loginData = JSON.parse(user);
-                    console.log('Login data parsed:', loginData);
-                    
-                    // Get their actual/real name
-                    actualName = loginData.name || loginData.username || loginData.email?.split('@')[0];
-                    
-                    // Get their preferred name/alias from signup
-                    preferredName = loginData.preferredName || loginData.alias || loginData.displayName || actualName;
-                    
-                    console.log('Extracted actual name:', actualName);
-                    console.log('Extracted preferred name:', preferredName);
+                const userData = JSON.parse(userSession);
+                console.log('User session found:', userData);
+                
+                // Validate required fields
+                if (!userData.email || !userData.name) {
+                    console.log('Invalid user session data');
+                    return false;
                 }
                 
-                // Update the user data with the preferred name from signup
-                if (preferredName && usageManager.userData.name !== preferredName) {
-                    usageManager.userData.name = preferredName;
-                    usageManager.userData.hasSetPreferredName = true; // They set it during signup
-                    console.log('Updated preferred name from signup to:', preferredName);
-                }
-                
-                if (actualName && usageManager.userData.actualName !== actualName) {
-                    usageManager.userData.actualName = actualName;
-                    console.log('Stored actual name:', actualName);
-                }
-                
-                usageManager.saveUserData();
+                currentUser = userData;
+                console.log('User authenticated successfully');
+                return true;
                 
             } catch (error) {
-                console.error('Error parsing user data:', error);
+                console.error('Error parsing user session:', error);
+                localStorage.removeItem('kinly_user'); // Clean up invalid session
                 return false;
             }
-            
-            return true;
         }
 
         function showLoginRequired() {
@@ -1049,12 +964,18 @@
             document.getElementById('chat').style.display = 'none';
         }
 
+        function showChatInterface() {
+            console.log('Showing chat interface');
+            document.getElementById('loginRequiredScreen').style.display = 'none';
+            document.getElementById('chat').style.display = 'flex';
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Kinly app loaded - simple version');
+            console.log('Kinly app loaded');
             
             try {
-                // Check authentication and get real user name
+                // Check authentication first
                 const isAuthenticated = checkAuthentication();
                 
                 if (!isAuthenticated) {
@@ -1063,41 +984,41 @@
                     return;
                 }
                 
-                // Show chat interface
-                document.getElementById('loginRequiredScreen').style.display = 'none';
-                document.getElementById('chat').style.display = 'flex';
+                // Initialize usage manager with authenticated user data
+                usageManager = new UsageManager();
                 
-                // Update UI with correct user name
-                usageManager.updateUI();
-                
-                // Add welcome message using preferred name from signup
-                const preferredName = usageManager.userData.name;
-                const hasSetPreferredName = usageManager.userData.hasSetPreferredName;
-                
-                console.log('User preferred name:', preferredName, 'Has set preferred name:', hasSetPreferredName);
-                
-                let welcomeMessage;
-                if (preferredName && preferredName !== 'Friend') {
-                    // User has a preferred name from signup
-                    const welcomeMessages = [
-                        `Hey ${preferredName}! How's your day going?`,
-                        `Hi ${preferredName}! What's on your mind today?`,
-                        `Good to see you, ${preferredName}! Ready for an adventure?`,
-                        `Welcome back, ${preferredName}! What brings you here today?`
-                    ];
-                    welcomeMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
-                } else {
-                    // Fallback if no preferred name found (shouldn't happen after signup)
-                    welcomeMessage = "Hey there! I'm Kinly, your AI companion who loves getting people outside and exploring! What should I call you?";
+                // Update user data with current session info
+                if (currentUser) {
+                    usageManager.userData.email = currentUser.email;
+                    usageManager.userData.name = currentUser.name;
+                    usageManager.userData.plan = currentUser.plan || 'connect';
+                    
+                    // Update plan details based on current plan
+                    const planLimits = {
+                        connect: { messagesPerDay: 35, monthlySearches: 1, humanChats: 0 },
+                        community: { messagesPerDay: 80, monthlySearches: 6, humanChats: 0 },
+                        explorer: { messagesPerDay: 80, monthlySearches: 6, humanChats: 3 }
+                    };
+                    
+                    usageManager.userData.planDetails = planLimits[usageManager.userData.plan];
+                    usageManager.saveUserData();
                 }
                 
+                // Show chat interface
+                showChatInterface();
+                
+                // Update UI with correct user data
+                usageManager.updateUI();
+                
+                // Add welcome message
+                const userName = usageManager.userData.name;
+                const welcomeMessage = `Hey ${userName}! Welcome back! How's your day going?`;
                 addMessage('ai', welcomeMessage);
                 
-                console.log('Chat interface initialized successfully with user:', userName);
+                console.log('Chat interface initialized successfully');
                 
             } catch (error) {
                 console.error('Error initializing app:', error);
-                // Show login screen if there's an error
                 showLoginRequired();
             }
         });
