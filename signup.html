@@ -169,15 +169,17 @@
             box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
         }
 
-        .plan-card.coming-soon {
-            opacity: 0.7;
-            cursor: not-allowed;
-            border-color: #d1d5db;
+        .plan-card.premium {
+            border-color: #84cc16;
         }
 
-        .plan-card.coming-soon:hover {
-            transform: none;
-            border-color: #d1d5db;
+        .plan-card.premium:hover {
+            border-color: #65a30d;
+        }
+
+        .plan-card.premium.selected {
+            border-color: #65a30d;
+            background: linear-gradient(135deg, rgba(132, 204, 22, 0.05), rgba(59, 130, 246, 0.05));
         }
 
         .plan-header {
@@ -197,6 +199,10 @@
             font-size: 1.8rem;
             font-weight: 800;
             color: #3b82f6;
+        }
+
+        .plan-price.premium-price {
+            color: #84cc16;
         }
 
         .plan-price .period {
@@ -237,18 +243,6 @@
             font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
-        }
-
-        .coming-soon-badge {
-            position: absolute;
-            top: -1px;
-            right: -1px;
-            background: #6b7280;
-            color: white;
-            padding: 6px 16px;
-            border-radius: 0 16px 0 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
         }
 
         .radio-input {
@@ -365,6 +359,17 @@
         .login-link p {
             color: #6b7280;
             margin-bottom: 10px;
+        }
+
+        .human-chat-highlight {
+            background: rgba(132, 204, 22, 0.1);
+            border: 1px solid rgba(132, 204, 22, 0.3);
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #365314;
+            font-weight: 500;
         }
 
         /* Responsive Design */
@@ -500,7 +505,7 @@
                             </div>
                             
                             <ul class="plan-features">
-                                <li>15 messages per day</li>
+                                <li>35 messages per day</li>
                                 <li>1 activity search per month</li>
                                 <li>Basic personality memory</li>
                                 <li>Community activity suggestions</li>
@@ -509,19 +514,20 @@
                         </div>
 
                         <!-- Community Plan -->
-                        <div class="plan-card" data-plan="community" onclick="selectPlan('community')">
+                        <div class="plan-card premium" data-plan="community" onclick="selectPlan('community')">
                             <input type="radio" name="plan" value="community" class="radio-input" id="plan-community">
+                            <div class="plan-badge">Popular</div>
                             
                             <div class="plan-header">
                                 <div class="plan-name">Community Plan</div>
-                                <div class="plan-price">
+                                <div class="plan-price premium-price">
                                     $12.99
                                     <span class="period">/month</span>
                                 </div>
                             </div>
                             
                             <ul class="plan-features">
-                                <li>100 messages per day</li>
+                                <li>80 messages per day</li>
                                 <li>6 activity searches per month</li>
                                 <li>Advanced personality memory</li>
                                 <li>Priority activity suggestions</li>
@@ -531,26 +537,30 @@
                         </div>
 
                         <!-- Explorer Plan -->
-                        <div class="plan-card coming-soon" data-plan="explorer" onclick="selectPlan('explorer')">
-                            <div class="coming-soon-badge">Coming Soon</div>
-                            <input type="radio" name="plan" value="explorer" class="radio-input" id="plan-explorer" disabled>
+                        <div class="plan-card premium" data-plan="explorer" onclick="selectPlan('explorer')">
+                            <input type="radio" name="plan" value="explorer" class="radio-input" id="plan-explorer">
                             
                             <div class="plan-header">
                                 <div class="plan-name">Explorer Plan</div>
-                                <div class="plan-price">
+                                <div class="plan-price premium-price">
                                     $19.99
                                     <span class="period">/month</span>
                                 </div>
                             </div>
                             
                             <ul class="plan-features">
-                                <li>160 messages per day</li>
-                                <li>8 activity searches per month</li>
-                                <li>3 human chat connections/month</li>
-                                <li>Advanced community matching</li>
-                                <li>Priority support</li>
-                                <li>Early access to new features</li>
+                                <li>80 messages per day</li>
+                                <li>6 activity searches per month</li>
+                                <li>3 verified human chats per month</li>
+                                <li>Advanced personality memory</li>
+                                <li>Priority activity suggestions</li>
+                                <li>Export conversation history</li>
+                                <li>Priority email support</li>
                             </ul>
+                            
+                            <div class="human-chat-highlight">
+                                🤝 Connect with real verified humans for authentic conversations and encouragement
+                            </div>
                         </div>
                     </div>
 
@@ -592,38 +602,36 @@
         // App State
         let selectedPlan = 'connect';
         
-        // Plan data
+        // Updated plan data with new pricing structure
         const plans = {
             connect: {
                 name: 'Connect Plan',
                 price: 'Free',
-                messagesPerDay: 15,
+                messagesPerDay: 35,
                 monthlySearches: 1,
+                humanChatsPerMonth: 0,
                 description: 'Perfect for getting started with Kinly!'
             },
             community: {
                 name: 'Community Plan',
                 price: '$12.99/month',
-                messagesPerDay: 100,
+                messagesPerDay: 80,
                 monthlySearches: 6,
+                humanChatsPerMonth: 0,
                 description: 'Great for regular users who want more conversations!'
             },
             explorer: {
                 name: 'Explorer Plan',
                 price: '$19.99/month',
-                messagesPerDay: 160,
-                monthlySearches: 8,
-                description: 'For adventurers who want unlimited local discoveries!'
+                messagesPerDay: 80,
+                monthlySearches: 6,
+                humanChatsPerMonth: 3,
+                description: 'For adventurers who want human connections too!'
             }
         };
 
         // Plan selection
         function selectPlan(planType) {
-            if (planType === 'explorer') {
-                // Show coming soon message but allow selection for planning
-                alert('The Explorer Plan is coming soon! You can still select it to see pricing and features.');
-            }
-            
             selectedPlan = planType;
             
             // Update UI
@@ -643,9 +651,14 @@
             const summaryEl = document.getElementById('planSummary');
             const textEl = document.getElementById('summaryText');
             
+            let humanChatText = '';
+            if (plan.humanChatsPerMonth > 0) {
+                humanChatText = `, ${plan.humanChatsPerMonth} human chats per month`;
+            }
+            
             textEl.innerHTML = `
                 You've selected the <strong>${plan.name}</strong> - ${plan.description}
-                <br><small>${plan.messagesPerDay} messages per day, ${plan.monthlySearches} activity searches per month</small>
+                <br><small>${plan.messagesPerDay} messages per day, ${plan.monthlySearches} activity searches per month${humanChatText}</small>
             `;
             
             summaryEl.classList.add('show');
@@ -754,6 +767,7 @@
             const accountData = {
                 email: email,
                 name: name,
+                preferredName: name, // Store as preferred name
                 password: btoa(password), // Simple base64 encoding (in production, use proper hashing)
                 plan: selectedPlan,
                 interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
@@ -763,20 +777,23 @@
             // Create user data with new plan structure
             const userData = {
                 email: email,
-                name: name,
+                name: name, // This will be the preferred name
+                actualName: name,
                 plan: selectedPlan,
                 interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
                 planDetails: {
                     messagesPerDay: plans[selectedPlan].messagesPerDay,
-                    monthlySearches: plans[selectedPlan].monthlySearches
+                    monthlySearches: plans[selectedPlan].monthlySearches,
+                    humanChatsPerMonth: plans[selectedPlan].humanChatsPerMonth
                 },
                 dailyUsage: {
                     messagesUsed: 0,
-                    date: new Date().toDateString() // Track by date string
+                    date: new Date().toDateString()
                 },
                 monthlySearchesUsed: 0,
+                monthlyHumanChatsUsed: 0,
                 monthlyResetDate: getNextMonthlyReset(),
-                activityFollowUps: [], // Track suggested activities for follow-up
+                hasSetPreferredName: true,
                 createdAt: new Date().toISOString()
             };
             
@@ -789,6 +806,7 @@
             localStorage.setItem('kinly_user', JSON.stringify({
                 email: email,
                 name: name,
+                preferredName: name,
                 loginTime: new Date().toISOString()
             }));
             
