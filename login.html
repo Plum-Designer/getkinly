@@ -154,17 +154,17 @@
             text-align: center;
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: 1px solid #e5e7eb;
         }
 
         .signup-link p {
-            color: rgba(255, 255, 255, 0.8);
+            color: #6b7280;
             margin-bottom: 10px;
             font-size: 0.9rem;
         }
 
         .signup-link a {
-            color: #84cc16;
+            color: #3b82f6;
             text-decoration: none;
             font-weight: 600;
         }
@@ -179,7 +179,7 @@
         }
 
         .back-link a {
-            color: rgba(255, 255, 255, 0.8);
+            color: #6b7280;
             text-decoration: none;
             font-size: 14px;
         }
@@ -205,7 +205,7 @@
         .success-message {
             background: rgba(34, 197, 94, 0.2);
             border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #86efac;
+            color: #16a34a;
             padding: 12px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -267,7 +267,7 @@
     </div>
 
     <script>
-        // Form submission
+        // Form submission with proper authentication
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -279,8 +279,8 @@
             
             // Validation
             if (!email || !password) {
-                showError('email', 'Please enter your email address');
-                showError('password', 'Please enter your password');
+                if (!email) showError('email', 'Please enter your email address');
+                if (!password) showError('password', 'Please enter your password');
                 return;
             }
             
@@ -292,55 +292,120 @@
             // Start loading
             setLoadingState(true);
             
-            // Check credentials
+            // Check credentials against stored accounts
             setTimeout(() => {
-                if (authenticateUser(email, password)) {
-                    // Success
+                const authResult = authenticateUser(email, password);
+                
+                if (authResult.success) {
+                    // Success - show message and redirect
                     showSuccess('Login successful! Redirecting...');
                     
-                    // Store user session
+                    // Store user session with all necessary data
+                    const userData = authResult.userData;
                     localStorage.setItem('kinly_user', JSON.stringify({
-                        email: email,
-                        name: getUserName(email),
+                        email: userData.email,
+                        name: userData.name,
+                        plan: userData.plan,
                         loginTime: new Date().toISOString()
                     }));
+                    
+                    // Update or create user data for the app
+                    updateUserDataForApp(userData);
                     
                     // Track login
                     if (window.sa_event) {
                         window.sa_event('user_login', {
-                            email: email
+                            email: email,
+                            plan: userData.plan
                         });
                     }
                     
-                    // Redirect to chat
+                    // Redirect to chat after showing success message
                     setTimeout(() => {
-                        window.location.href = 'app.html?chat=true';
+                        window.location.href = 'app.html';
                     }, 1500);
                     
                 } else {
-                    // Failed
+                    // Failed authentication
                     setLoadingState(false);
-                    showError('password', 'Invalid email or password');
+                    if (authResult.reason === 'not_found') {
+                        showError('email', 'No account found with this email address');
+                    } else if (authResult.reason === 'wrong_password') {
+                        showError('password', 'Incorrect password');
+                    } else {
+                        showError('password', 'Invalid email or password');
+                    }
                 }
             }, 1000);
         });
 
         function authenticateUser(email, password) {
-            // Get stored accounts
-            const accounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
-            
-            if (!accounts[email]) {
-                return false; // Email not found
+            try {
+                // Get stored accounts
+                const accounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+                
+                if (!accounts[email]) {
+                    return { success: false, reason: 'not_found' };
+                }
+                
+                // Check password (decode from base64)
+                const storedPassword = atob(accounts[email].password);
+                if (password !== storedPassword) {
+                    return { success: false, reason: 'wrong_password' };
+                }
+                
+                // Return user data
+                return { 
+                    success: true, 
+                    userData: accounts[email]
+                };
+                
+            } catch (error) {
+                console.error('Authentication error:', error);
+                return { success: false, reason: 'error' };
             }
-            
-            // Simple password check (base64 decoded)
-            const storedPassword = atob(accounts[email].password);
-            return password === storedPassword;
         }
 
-        function getUserName(email) {
-            const accounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
-            return accounts[email] ? accounts[email].name : email.split('@')[0];
+        function updateUserDataForApp(userData) {
+            // Get existing app user data or create new with updated plan structure
+            let appUserData = JSON.parse(localStorage.getItem('kinly_user_data') || '{}');
+            
+            // Use the plan structure from the updated signup
+            const planLimits = {
+                connect: { messagesPerDay: 35, monthlySearches: 1, humanChats: 0 },
+                community: { messagesPerDay: 80, monthlySearches: 6, humanChats: 0 },
+                explorer: { messagesPerDay: 80, monthlySearches: 6, humanChats: 3 }
+            };
+            
+            const userPlan = userData.plan || 'connect';
+            const limits = planLimits[userPlan];
+            
+            // Create or update app user data
+            const updatedAppData = {
+                email: userData.email,
+                name: userData.name,
+                plan: userPlan,
+                interests: userData.interests || [],
+                planDetails: limits,
+                dailyUsage: appUserData.dailyUsage || {
+                    messagesUsed: 0,
+                    date: new Date().toDateString()
+                },
+                monthlySearchesUsed: appUserData.monthlySearchesUsed || 0,
+                monthlyHumanChatsUsed: appUserData.monthlyHumanChatsUsed || 0,
+                monthlyResetDate: appUserData.monthlyResetDate || getNextMonthlyReset(),
+                activityFollowUps: appUserData.activityFollowUps || [],
+                createdAt: userData.createdAt || new Date().toISOString(),
+                hasSetPreferredName: true // They set it during signup
+            };
+            
+            localStorage.setItem('kinly_user_data', JSON.stringify(updatedAppData));
+        }
+
+        function getNextMonthlyReset() {
+            const now = new Date();
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+            return nextMonth.getTime();
         }
 
         function showError(field, message) {
@@ -384,16 +449,7 @@
             return emailRegex.test(email);
         }
 
-        // Check if user is already logged in
-        window.addEventListener('load', () => {
-            const user = localStorage.getItem('kinly_user');
-            if (user) {
-                // User is already logged in, redirect to app
-                window.location.href = 'app.html';
-            }
-        });
-
-        // Focus on email field
+        // Focus on email field when page loads
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('email').focus();
         });
