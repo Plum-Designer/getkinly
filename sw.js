@@ -1,43 +1,50 @@
-// Service Worker for Kinly PWA
-const CACHE_NAME = 'kinly-v2.0.0';
+// Kinly Service Worker for PWA functionality
+const CACHE_NAME = 'kinly-v1.0.0';
 const OFFLINE_URL = '/offline.html';
 
-// Files to cache for offline functionality
-const CACHE_FILES = [
+// Core files that should always be cached
+const CORE_CACHE_FILES = [
   '/',
   '/index.html',
   '/app.html',
+  '/login.html',
   '/signup.html',
-  '/contact.html',
-  '/privacy.html',
-  '/terms.html',
+  '/offline.html',
   '/manifest.json',
-  '/offline.html'
+  '/icon-192.png',
+  '/icon-512.png',
+  '/favicon.ico'
 ];
 
-// Install event - cache essential files
+// Dynamic cache for other resources
+const DYNAMIC_CACHE_FILES = [
+  // CSS and JS will be cached as needed
+];
+
+// Install event - cache core files
 self.addEventListener('install', (event) => {
-  console.log('Kinly Service Worker: Installing v2.0.0...');
+  console.log('Service Worker: Installing...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Kinly Service Worker: Caching files');
-        return cache.addAll(CACHE_FILES);
+        console.log('Service Worker: Caching core files');
+        return cache.addAll(CORE_CACHE_FILES);
       })
       .then(() => {
-        console.log('Kinly Service Worker: Files cached successfully');
-        self.skipWaiting();
+        console.log('Service Worker: Core files cached successfully');
+        // Force the new service worker to activate immediately
+        return self.skipWaiting();
       })
       .catch((error) => {
-        console.error('Kinly Service Worker: Cache failed', error);
+        console.error('Service Worker: Failed to cache core files', error);
       })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Kinly Service Worker: Activating v2.0.0...');
+  console.log('Service Worker: Activating...');
   
   event.waitUntil(
     caches.keys()
@@ -45,199 +52,150 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
-              console.log('Kinly Service Worker: Deleting old cache', cacheName);
+              console.log('Service Worker: Deleting old cache', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('Kinly Service Worker: Claiming clients');
+        console.log('Service Worker: Activated successfully');
+        // Claim all clients immediately
         return self.clients.claim();
       })
   );
 });
 
-// Fetch event - serve cached files when offline
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests and external URLs
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Only handle HTTP/HTTPS requests
+  if (!url.protocol.startsWith('http')) {
     return;
   }
-
-  // Handle Netlify functions differently
-  if (event.request.url.includes('/.netlify/functions/')) {
-    // Don't cache function calls, but provide fallback
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          return new Response(JSON.stringify({ 
-            error: 'You appear to be offline. Please check your connection and try again.' 
-          }), {
-            status: 503,
-            headers: { 'Content-Type': 'application/json' }
-          });
-        })
-    );
-    return;
-  }
-
+  
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
+    caches.match(request)
+      .then((cachedResponse) => {
         // Return cached version if available
-        if (response) {
-          console.log('Kinly Service Worker: Serving from cache', event.request.url);
-          return response;
+        if (cachedResponse) {
+          console.log('Service Worker: Serving from cache', request.url);
+          return cachedResponse;
         }
-
-        // Try to fetch from network
-        return fetch(event.request)
+        
+        // Otherwise fetch from network
+        return fetch(request)
           .then((response) => {
             // Don't cache non-successful responses
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
-
-            // Clone the response
+            
+            // Clone the response since it can only be consumed once
             const responseToCache = response.clone();
-
-            // Add to cache for future use (only cache GET requests for same origin)
-            if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-
+            
+            // Cache the response for future use
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                // Only cache GET requests
+                if (request.method === 'GET') {
+                  console.log('Service Worker: Caching new resource', request.url);
+                  cache.put(request, responseToCache);
+                }
+              });
+            
             return response;
           })
-          .catch(() => {
-            // If network fails and we're requesting a page, show offline page
-            if (event.request.mode === 'navigate') {
+          .catch((error) => {
+            console.log('Service Worker: Network request failed', request.url, error);
+            
+            // If this is a navigation request, serve the offline page
+            if (request.mode === 'navigate') {
               return caches.match(OFFLINE_URL);
             }
             
-            // For other requests, return a basic offline response
-            return new Response('Offline', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
+            // For other requests, throw the error
+            throw error;
           });
       })
   );
 });
 
-// Handle messages from main thread
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('Kinly Service Worker: Skipping waiting');
-    self.skipWaiting();
-  }
+// Background sync for offline actions
+self.addEventListener('sync', (event) => {
+  console.log('Service Worker: Background sync triggered', event.tag);
   
-  if (event.data && event.data.type === 'GET_VERSION') {
-    event.ports[0].postMessage({
-      version: CACHE_NAME
-    });
+  if (event.tag === 'background-sync') {
+    event.waitUntil(
+      // Handle background sync tasks here
+      console.log('Service Worker: Performing background sync')
+    );
   }
 });
 
-// Push notifications for Kinly (when implemented)
+// Push notification handling
 self.addEventListener('push', (event) => {
-  console.log('Kinly Service Worker: Push notification received');
+  console.log('Service Worker: Push message received', event);
   
-  let notificationData = {
-    title: 'Kinly',
-    body: 'You have a new message from your AI friend!',
-    tag: 'kinly-message',
+  const options = {
+    body: event.data ? event.data.text() : 'New message from Kinly!',
     icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    badge: '/icon-72.png',
+    vibrate: [100, 50, 100],
     data: {
-      url: '/app.html'
+      dateOfArrival: Date.now(),
+      primaryKey: 1
     },
     actions: [
       {
-        action: 'open',
-        title: 'Open Chat',
+        action: 'explore',
+        title: 'Open Kinly',
         icon: '/icon-192.png'
       },
       {
-        action: 'dismiss',
-        title: 'Dismiss'
+        action: 'close',
+        title: 'Close',
+        icon: '/icon-192.png'
       }
     ]
   };
-
-  // Parse push data if available
-  if (event.data) {
-    try {
-      const pushData = event.data.json();
-      notificationData = { ...notificationData, ...pushData };
-    } catch (error) {
-      console.error('Kinly Service Worker: Failed to parse push data', error);
-    }
-  }
-
+  
   event.waitUntil(
-    self.registration.showNotification(notificationData.title, notificationData)
+    self.registration.showNotification('Kinly', options)
   );
 });
 
-// Handle notification clicks
+// Notification click handling
 self.addEventListener('notificationclick', (event) => {
-  console.log('Kinly Service Worker: Notification clicked', event.action);
+  console.log('Service Worker: Notification clicked', event);
   
   event.notification.close();
-
-  if (event.action === 'dismiss') {
+  
+  if (event.action === 'explore') {
+    // Open the app
+    event.waitUntil(
+      clients.openWindow('/app.html')
+    );
+  } else if (event.action === 'close') {
+    // Just close the notification
     return;
-  }
-
-  const urlToOpen = event.notification.data?.url || '/app.html';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        // Check if Kinly is already open
-        for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            // If app is open, focus and navigate to chat
-            client.focus();
-            if (client.url !== self.location.origin + urlToOpen) {
-              return client.navigate(urlToOpen);
-            }
-            return client;
-          }
-        }
-        
-        // Open new window if app is not open
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
-      })
-  );
-});
-
-// Handle background sync (for when offline messages need to be sent)
-self.addEventListener('sync', (event) => {
-  console.log('Kinly Service Worker: Background sync triggered', event.tag);
-  
-  if (event.tag === 'kinly-chat-sync') {
+  } else {
+    // Default action - open the app
     event.waitUntil(
-      // Future: Handle offline message queue
-      Promise.resolve()
+      clients.openWindow('/')
     );
   }
 });
 
-// Periodic background sync (for usage limit resets, etc.)
-self.addEventListener('periodicsync', (event) => {
-  console.log('Kinly Service Worker: Periodic sync triggered', event.tag);
+// Message handling from main thread
+self.addEventListener('message', (event) => {
+  console.log('Service Worker: Message received', event.data);
   
-  if (event.tag === 'kinly-usage-check') {
-    event.waitUntil(
-      // Future: Check if usage limits should reset
-      Promise.resolve()
-    );
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });
+
+console.log('Service Worker: Loaded successfully');
