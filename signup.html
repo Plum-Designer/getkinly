@@ -532,8 +532,9 @@
                         </div>
 
                         <!-- Explorer Plan -->
-                        <div class="plan-card" data-plan="explorer" onclick="selectPlan('explorer')">
-                            <input type="radio" name="plan" value="explorer" class="radio-input" id="plan-explorer">
+                        <div class="plan-card coming-soon" data-plan="explorer">
+                            <div class="coming-soon-badge">Coming Soon</div>
+                            <input type="radio" name="plan" value="explorer" class="radio-input" id="plan-explorer" disabled>
                             
                             <div class="plan-header">
                                 <div class="plan-name">Explorer</div>
@@ -618,8 +619,14 @@
             }
         };
 
-        // Plan selection
+        // Plan selection with Explorer disabled
         function selectPlan(planType) {
+            // Prevent selection of Explorer plan
+            if (planType === 'explorer') {
+                alert('The Explorer Plan is coming soon! Stay tuned for verified human chat connections.');
+                return;
+            }
+            
             selectedPlan = planType;
             
             // Update UI
@@ -627,8 +634,12 @@
                 card.classList.remove('selected');
             });
             
-            document.querySelector(`[data-plan="${planType}"]`).classList.add('selected');
-            document.getElementById(`plan-${planType}`).checked = true;
+            // Only select if not coming soon
+            const selectedCard = document.querySelector(`[data-plan="${planType}"]`);
+            if (!selectedCard.classList.contains('coming-soon')) {
+                selectedCard.classList.add('selected');
+                document.getElementById(`plan-${planType}`).checked = true;
+            }
             
             // Update summary
             updatePlanSummary();
@@ -695,7 +706,7 @@
             return existingAccounts.hasOwnProperty(email);
         }
 
-        // Form submission
+        // Form submission with Supabase integration
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -712,7 +723,7 @@
             let hasErrors = false;
             
             // Validation
-            if (!email || !name || !password || !confirmPassword) {
+            if (!email || !password || !confirmPassword) {
                 alert('Please fill in all required fields.');
                 return;
             }
@@ -720,14 +731,6 @@
             if (!isValidEmail(email)) {
                 document.getElementById('email').classList.add('error');
                 document.getElementById('emailError').textContent = 'Please enter a valid email address';
-                document.getElementById('emailError').style.display = 'block';
-                hasErrors = true;
-            }
-            
-            // Check if email already exists
-            if (await checkEmailExists(email)) {
-                document.getElementById('email').classList.add('error');
-                document.getElementById('emailError').textContent = 'This email is already registered. Please log in instead.';
                 document.getElementById('emailError').style.display = 'block';
                 hasErrors = true;
             }
@@ -751,71 +754,112 @@
             // Start loading
             setLoadingState(true);
             
-            // Create account data
-            const accountData = {
-                email: email,
-                name: name,
-                password: btoa(password), // Simple base64 encoding (in production, use proper hashing)
-                plan: selectedPlan,
-                interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
-                createdAt: new Date().toISOString()
-            };
-            
-            // Create user data with updated plan structure
-            const userData = {
-                email: email,
-                name: name,
-                plan: selectedPlan,
-                interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
-                planDetails: {
-                    messagesPerDay: plans[selectedPlan].messagesPerDay,
-                    monthlySearches: plans[selectedPlan].monthlySearches,
-                    humanChats: plans[selectedPlan].humanChats || 0
-                },
-                dailyUsage: {
-                    messagesUsed: 0,
-                    date: new Date().toDateString() // Track by date string
-                },
-                monthlySearchesUsed: 0,
-                monthlyHumanChatsUsed: 0,
-                monthlyResetDate: getNextMonthlyReset(),
-                activityFollowUps: [], // Track suggested activities for follow-up
-                createdAt: new Date().toISOString()
-            };
-            
-            // Store account credentials
-            const existingAccounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
-            existingAccounts[email] = accountData;
-            localStorage.setItem('kinly_accounts', JSON.stringify(existingAccounts));
-            
-            // Store user session
-            localStorage.setItem('kinly_user', JSON.stringify({
-                email: email,
-                name: name,
-                loginTime: new Date().toISOString()
-            }));
-            
-            // Store user data
-            localStorage.setItem('kinly_user_data', JSON.stringify(userData));
-            
-            // Track signup
-            if (window.sa_event) {
-                window.sa_event('user_signup', {
-                    plan: selectedPlan,
-                    plan_price: plans[selectedPlan].price
+            try {
+                // Call your new Supabase signup function
+                const response = await fetch('/.netlify/functions/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name || null,
+                        plan: selectedPlan,
+                        interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
+                        password: password
+                    })
                 });
-            }
-            
-            // Simulate processing time
-            setTimeout(() => {
-                if (selectedPlan === 'connect') {
-                    // Redirect directly to chat for free plan
-                    window.location.href = 'app.html?chat=true';
-                } else {
-                    // Redirect to payment for paid plans
-                    window.location.href = `payment.html?plan=${selectedPlan}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`;
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Signup failed');
                 }
-            }, 2000);
+
+                console.log('✅ User registered in Supabase:', result.user);
+
+                // Still store locally for login functionality
+                const accountData = {
+                    email: email,
+                    name: name || null,
+                    password: btoa(password),
+                    plan: selectedPlan,
+                    interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
+                    createdAt: new Date().toISOString()
+                };
+                
+                const existingAccounts = JSON.parse(localStorage.getItem('kinly_accounts') || '{}');
+                existingAccounts[email] = accountData;
+                localStorage.setItem('kinly_accounts', JSON.stringify(existingAccounts));
+                
+                // Store user session
+                localStorage.setItem('kinly_user', JSON.stringify({
+                    email: email,
+                    name: name || null,
+                    plan: selectedPlan,
+                    loginTime: new Date().toISOString()
+                }));
+                
+                // Store user data for app
+                const userData = {
+                    email: email,
+                    name: name || null,
+                    plan: selectedPlan,
+                    interests: interests ? interests.split(',').map(i => i.trim()).filter(i => i) : [],
+                    planDetails: {
+                        messagesPerDay: plans[selectedPlan].messagesPerDay,
+                        monthlySearches: plans[selectedPlan].monthlySearches,
+                        humanChats: plans[selectedPlan].humanChats || 0
+                    },
+                    dailyUsage: {
+                        messagesUsed: 0,
+                        date: new Date().toDateString()
+                    },
+                    monthlySearchesUsed: 0,
+                    monthlyHumanChatsUsed: 0,
+                    monthlyResetDate: getNextMonthlyReset(),
+                    activityFollowUps: [],
+                    createdAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('kinly_user_data', JSON.stringify(userData));
+                
+                // Track signup
+                if (window.sa_event) {
+                    window.sa_event('user_signup', {
+                        plan: selectedPlan,
+                        plan_price: plans[selectedPlan].price
+                    });
+                }
+                
+                // Show success and redirect
+                setTimeout(() => {
+                    if (selectedPlan === 'connect') {
+                        window.location.href = 'app.html?chat=true';
+                    } else {
+                        window.location.href = `payment.html?plan=${selectedPlan}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`;
+                    }
+                }, 2000);
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                setLoadingState(false);
+                
+                // Show specific error messages
+                const errorMessage = error.message;
+                
+                if (errorMessage.includes('already registered')) {
+                    document.getElementById('email').classList.add('error');
+                    document.getElementById('emailError').textContent = 'This email is already registered. Please log in instead.';
+                    document.getElementById('emailError').style.display = 'block';
+                } else if (errorMessage.includes('Invalid email')) {
+                    document.getElementById('email').classList.add('error');
+                    document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                    document.getElementById('emailError').style.display = 'block';
+                } else {
+                    alert('Account creation failed: ' + errorMessage + '. Please try again.');
+                }
+            }
         });
 
         function getNextMonthlyReset() {
