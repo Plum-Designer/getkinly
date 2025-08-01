@@ -1,0 +1,8 @@
+{
+  "name": "kinly",
+  "version": "1.0.0",
+  "description": "Privacy-first AI companion app",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  }
+}
